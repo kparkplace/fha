@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+.DS_Store
+
+# Ignore top-level underscore-prefixed folders (working/temporary input dirs)
+_*/

@@ -1,3 +1,4 @@
+#%%
 from io import BytesIO
 from pathlib import Path
 import re
@@ -7,10 +8,10 @@ import pandas as pd
 import pdfplumber
 import requests
 
-
+#%%
 REPO_ROOT = Path(__file__).resolve().parents[1]
-REFERENCE_DIR = REPO_ROOT / 'ActuarialReview'
-OUTPUT_PATH = REPO_ROOT / 'ActuarialReview' /'cum_claims.parquet'
+REFERENCE_DIR = REPO_ROOT / '_ActuarialReview'
+OUTPUT_PATH = REPO_ROOT / 'Data' / 'cum_claims.parquet'
 
 PAGE_METRICS = {
     1: 'survivorship',
@@ -21,7 +22,7 @@ PAGE_METRICS = {
     6: 'cum_clm_rate',
     7: 'cum_prepay_rate',
 }
-
+#%%
 
 def build_text_metric_configs(sourcefy, source, metric_pages, *, row_gt=2, split_n=30, **extra_config):
     return [
@@ -821,3 +822,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

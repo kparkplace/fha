@@ -1,0 +1,8 @@
+pandas
+numpy
+pyarrow
+plotnine
+fredapi
+camelot-py[cv]
+pdfplumber
+requests

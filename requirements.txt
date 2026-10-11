@@ -6,3 +6,6 @@ fredapi
 camelot-py[cv]
 pdfplumber
 requests
+dash
+plotly
+gunicorn

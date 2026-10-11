@@ -70,6 +70,7 @@ def apply_figure_layout(
     *,
     title: str,
     y_axis_title: str,
+    x_axis_title: str = "Year",
     legend_title: str | None = None,
     height: int = 360,
     legend_orientation: str = "h",
@@ -90,7 +91,7 @@ def apply_figure_layout(
             "x": legend_x,
         },
     )
-    fig.update_xaxes(title_text="Year")
+    fig.update_xaxes(title_text=x_axis_title)
     fig.update_yaxes(title_text=y_axis_title)
     return fig
 
@@ -188,6 +189,13 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         template="plotly_white",
         margin={"l": 50, "r": 20, "t": 60, "b": 100},
         legend_title_text=None,
+        legend={
+            "orientation": "h",
+            "yanchor": "top",
+            "y": -0.2,
+            "xanchor": "left",
+            "x": 0,
+        },
     )
     return fig
 
@@ -244,6 +252,7 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         fig,
         title="Observed Cumulative-Claim Paths by Cohort",
         y_axis_title="Cumulative Claim Rate",
+        x_axis_title="Years Since Origination",
         legend_title="Cohort",
         height=420,
         legend_orientation="v",
@@ -306,28 +315,28 @@ def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
 
     chart_specs = [
         (
-            "Inflation-Adjusted Econ Value",
-            "Latest-dollar econ value by source.",
+            "Economic Value",
+            "",
             build_adjusted_figure(capratio_df, "econ_value_in_latest_dollars", "Inflation-Adjusted Econ Value (latest dollars)"),
         ),
         (
-            "Inflation-Adjusted Cap Resources",
-            "Latest-dollar capital resources by source.",
+            "Capital Resources",
+            "",
             build_adjusted_figure(capratio_df, "cap_resources_in_latest_dollars", "Inflation-Adjusted Cap Resources (latest dollars)"),
         ),
         (
-            "Inflation-Adjusted Cashflow NPV",
-            "Latest-dollar cashflow NPV by source.",
+            "Cashflow NPV",
+            "",
             build_adjusted_figure(capratio_df, "cashflow_npv_in_latest_dollars", "Inflation-Adjusted Cashflow NPV (latest dollars)"),
         ),
         (
-            "Observed Cohort Paths",
-            "Observed cumulative claim-rate paths by cohort over policy year.",
+            "Observed Cumulative Claim Rates",
+            "By Cohort and Years Since Origination",
             build_claims_line_figure(claims_df),
         ),
         (
-            "Claims Stack",
-            "Observed and forecasted cumulative claim-rate totals by cohort.",
+            "Observed and Forecasted Cumulative Claim Rates",
+            "By Cohort",
             build_claims_stack_figure(claims_df),
         ),
     ]
@@ -361,7 +370,7 @@ def render_stats_items() -> list[html.Li]:
 
 app = Dash(__name__)
 server = app.server
-app.title = "FHA Plot Dashboard"
+app.title = "FHA Single-Family Forward Loans Dashboard"
 
 
 @server.route("/healthz")
@@ -371,7 +380,7 @@ def healthz() -> tuple[str, int]:
 
 app.layout = html.Div(
     [
-        html.H1("FHA Plot Dashboard"),
+        html.H1("FHA Single-Family Forward Loans Dashboard"),
         html.P("Browser-rendered versions of the FHA cap ratio and claims charts."),
         html.Ul(id="summary-stats", children=render_stats_items()),
         html.Div(

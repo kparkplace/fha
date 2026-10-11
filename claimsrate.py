@@ -76,7 +76,7 @@ chart = (
         x='Cohort',
         y='Cumulative Claim Rate',
         fill='',
-        caption='Created by Kevin Park\nSource: FHA Actuarial Reviews',
+        caption='Source: FHA Actuarial Reviews',
     )
     + theme_classic()
     + theme(axis_text_x=element_text(rotation=90, hjust=1), legend_position='top')
@@ -98,7 +98,7 @@ else:
     line_chart = (
         ggplot(obs_ts, aes(x='year', y='value', color='factor(cohort)', group='cohort'))
         + geom_line()
-        + labs(x='Year', y='Cumulative Claim Rate', color='Cohort', title='Observed cumulative-claim paths by cohort')
+        + labs(x='Years Since Origination', y='Cumulative Claim Rate (%)', color='Cohort', caption='Source: FHA Actuarial Reviews',)
         + theme_classic()
         + theme(axis_text_x=element_text(rotation=0, hjust=0.5), legend_position='right')
     )

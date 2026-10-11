@@ -61,9 +61,8 @@ if "econ_value_in_latest_dollars" in available:
         ggplot(econ_value_adj, aes(x="year", y="value", color="source", group="source"))
         + geom_line()
         + labs(
-            title="Inflation-adjusted Econ Value (latest dollars)",
-            y="Value (latest dollars)",
-            x="Year",
+            y="Inflation-Adjusted",
+            x="Fiscal Year",
         )
         + theme_minimal()
     )
@@ -78,9 +77,8 @@ if "cap_resources_in_latest_dollars" in available:
         ggplot(cap_resources_adj, aes(x="year", y="value", color="source", group="source"))
         + geom_line()
         + labs(
-            title="Inflation-adjusted Cap Resources (latest dollars)",
-            y="Value (latest dollars)",
-            x="Year",
+            y="Inflation-Adjusted",
+            x="Fiscal Year",
         )
         + theme_minimal()
     )
@@ -95,9 +93,8 @@ if "cashflow_npv_in_latest_dollars" in available:
         ggplot(cashflow_npv_adj, aes(x="year", y="value", color="source", group="source"))
         + geom_line()
         + labs(
-            title="Inflation-adjusted Cashflow Npv (latest dollars)",
-            y="Value (latest dollars)",
-            x="Year",
+            y="Inflation-Adjusted",
+            x="Fiscal Year",
         )
         + theme_minimal()
     )

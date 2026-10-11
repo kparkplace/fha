@@ -1,11 +1,9 @@
 
 #%%
-from plotnine import facet_wrap, ggplot, aes, geom_line, geom_hline, theme_classic, labs, facet_wrap, theme_minimal
+from plotnine import ggplot, aes, geom_line, geom_hline, theme_classic, labs, theme_minimal
 import pandas as pd
 
 from pathlib import Path
-import os
-import numpy as np
 df = pd.read_parquet(Path(__file__).resolve().parent / "Data/capratio.parquet")
 
 # %%
@@ -33,26 +31,78 @@ p = (ggplot(m, aes('year', 'value', color='source', linetype='metric'))
 )
 p
 # %%
-# Inflation-adjusted faceted plot (inline for Interactive window)
+# Inflation-adjusted data prep for separate charts
 adj_metrics = ("econ_value", "cap_resources", "cashflow_npv")
 adj_cols = [f"{c}_in_latest_dollars" for c in adj_metrics]
 available = [c for c in adj_cols if c in df.columns]
-if not available:
-    print("No inflation-adjusted columns found; skipping adjusted-values plot")
-else:
-    m_adj = df.melt(id_vars=["year", "source"], value_vars=available, var_name="metric", value_name="value")
-    m_adj = m_adj.dropna(subset=["value"])
-    m_adj["metric"] = m_adj["metric"].str.replace("_in_latest_dollars", "", regex=False).str.replace("_", " ").str.title()
 
-    p_adj = (
-        ggplot(m_adj, aes(x="year", y="value", color="source", group="source"))
+if not available:
+    print("No inflation-adjusted columns found; skipping adjusted-values plots")
+else:
+    m_adj = df.melt(
+        id_vars=["year", "source"],
+        value_vars=available,
+        var_name="metric",
+        value_name="value",
+    )
+    m_adj = m_adj.dropna(subset=["value"])
+    m_adj["metric"] = (
+        m_adj["metric"]
+        .str.replace("_in_latest_dollars", "", regex=False)
+        .str.replace("_", " ")
+        .str.title()
+    )
+
+# %%
+if "econ_value_in_latest_dollars" in available:
+    econ_value_adj = m_adj[m_adj["metric"] == "Econ Value"].copy()
+
+    p_adj_econ_value = (
+        ggplot(econ_value_adj, aes(x="year", y="value", color="source", group="source"))
         + geom_line()
-        + facet_wrap("~metric", scales="free_y")
-        + labs(title="Inflation-adjusted values (latest dollars)", y="Value (latest dollars)", x="Year")
+        + labs(
+            title="Inflation-adjusted Econ Value (latest dollars)",
+            y="Value (latest dollars)",
+            x="Year",
+        )
         + theme_minimal()
     )
 
-p_adj
+p_adj_econ_value
+
+# %%
+if "cap_resources_in_latest_dollars" in available:
+    cap_resources_adj = m_adj[m_adj["metric"] == "Cap Resources"].copy()
+
+    p_adj_cap_resources = (
+        ggplot(cap_resources_adj, aes(x="year", y="value", color="source", group="source"))
+        + geom_line()
+        + labs(
+            title="Inflation-adjusted Cap Resources (latest dollars)",
+            y="Value (latest dollars)",
+            x="Year",
+        )
+        + theme_minimal()
+    )
+
+p_adj_cap_resources
+
+# %%
+if "cashflow_npv_in_latest_dollars" in available:
+    cashflow_npv_adj = m_adj[m_adj["metric"] == "Cashflow Npv"].copy()
+
+    p_adj_cashflow_npv = (
+        ggplot(cashflow_npv_adj, aes(x="year", y="value", color="source", group="source"))
+        + geom_line()
+        + labs(
+            title="Inflation-adjusted Cashflow Npv (latest dollars)",
+            y="Value (latest dollars)",
+            x="Year",
+        )
+        + theme_minimal()
+    )
+
+p_adj_cashflow_npv
 
 
 

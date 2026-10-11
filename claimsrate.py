@@ -98,10 +98,11 @@ else:
     line_chart = (
         ggplot(obs_ts, aes(x='year', y='value', color='factor(cohort)', group='cohort'))
         + geom_line()
-        + geom_point(size=1.5)
         + labs(x='Year', y='Cumulative Claim Rate', color='Cohort', title='Observed cumulative-claim paths by cohort')
         + theme_classic()
         + theme(axis_text_x=element_text(rotation=0, hjust=0.5), legend_position='right')
     )
 
-    line_chart
+line_chart
+
+# %%

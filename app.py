@@ -103,11 +103,10 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         y="value",
         color="source",
         line_dash="metric",
-        markers=True,
     )
     fig.add_hline(y=0, line_dash="dash", line_color="#64748b")
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent")
+    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent", height=560)
 
 
 def build_adjusted_figure(capratio_df: pd.DataFrame, metric_column: str, title: str) -> go.Figure | None:
@@ -123,7 +122,6 @@ def build_adjusted_figure(capratio_df: pd.DataFrame, metric_column: str, title: 
         x="year",
         y="value",
         color="source",
-        markers=True,
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.0f}<br>Source=%{fullData.name}<extra></extra>")
     return apply_figure_layout(fig, title=title, y_axis_title="Value (latest dollars)")
@@ -200,7 +198,6 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         x="year",
         y="value",
         color="cohort_label",
-        markers=True,
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Rate=%{y:,.2f}<br>Cohort=%{fullData.name}<extra></extra>")
     return apply_figure_layout(
@@ -212,18 +209,59 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     )
 
 
-def build_chart_cards() -> list[html.Div]:
+def build_chart_card(title: str, description: str, figure: go.Figure | None, *, featured: bool = False) -> html.Div:
+    card_style = {
+        "backgroundColor": "#ffffff",
+        "border": "1px solid #dbe2ea",
+        "borderRadius": "12px",
+        "boxShadow": "0 2px 8px rgba(16, 24, 40, 0.06)",
+        "padding": "16px",
+    }
+    if featured:
+        card_style["marginBottom"] = "18px"
+
+    if figure is None:
+        return html.Div(
+            [
+                html.H3(title, style={"marginBottom": "8px"}),
+                html.P(description, style={"color": "#475569", "marginTop": "0"}),
+                html.Div(
+                    "No data available for this chart.",
+                    style={
+                        "backgroundColor": "#fff7ed",
+                        "border": "1px solid #fdba74",
+                        "padding": "14px 16px",
+                        "borderRadius": "10px",
+                    },
+                ),
+            ],
+            style=card_style,
+        )
+
+    return html.Div(
+        [
+            html.H3(title, style={"marginBottom": "6px"}),
+            html.P(description, style={"color": "#475569", "marginTop": "0", "marginBottom": "10px"}),
+            dcc.Graph(figure=figure, config={"displaylogo": False, "responsive": True}),
+        ],
+        style=card_style,
+    )
+
+
+def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
     capratio_df = DATA_CACHE["capratio_df"]
     claims_df = DATA_CACHE["claims_df"]
     if capratio_df is None or claims_df is None:
-        return []
+        return html.Div(), []
+
+    featured_card = build_chart_card(
+        "Capital Ratios",
+        "Capital ratio and unamortized capital ratio by source.",
+        build_capital_ratio_figure(capratio_df),
+        featured=True,
+    )
 
     chart_specs = [
-        (
-            "Capital Ratios",
-            "Capital ratio and unamortized capital ratio by source.",
-            build_capital_ratio_figure(capratio_df),
-        ),
         (
             "Inflation-Adjusted Econ Value",
             "Latest-dollar econ value by source.",
@@ -253,51 +291,9 @@ def build_chart_cards() -> list[html.Div]:
 
     cards: list[html.Div] = []
     for title, description, figure in chart_specs:
-        if figure is None:
-            cards.append(
-                html.Div(
-                    [
-                        html.H3(title, style={"marginBottom": "8px"}),
-                        html.P(description, style={"color": "#475569", "marginTop": "0"}),
-                        html.Div(
-                            "No data available for this chart.",
-                            style={
-                                "backgroundColor": "#fff7ed",
-                                "border": "1px solid #fdba74",
-                                "padding": "14px 16px",
-                                "borderRadius": "10px",
-                            },
-                        ),
-                    ],
-                    style={
-                        "backgroundColor": "#ffffff",
-                        "border": "1px solid #dbe2ea",
-                        "borderRadius": "12px",
-                        "boxShadow": "0 2px 8px rgba(16, 24, 40, 0.06)",
-                        "padding": "16px",
-                    },
-                )
-            )
-            continue
+        cards.append(build_chart_card(title, description, figure))
 
-        cards.append(
-            html.Div(
-                [
-                    html.H3(title, style={"marginBottom": "6px"}),
-                    html.P(description, style={"color": "#475569", "marginTop": "0", "marginBottom": "10px"}),
-                    dcc.Graph(figure=figure, config={"displaylogo": False, "responsive": True}),
-                ],
-                style={
-                    "backgroundColor": "#ffffff",
-                    "border": "1px solid #dbe2ea",
-                    "borderRadius": "12px",
-                    "boxShadow": "0 2px 8px rgba(16, 24, 40, 0.06)",
-                    "padding": "16px",
-                },
-            )
-        )
-
-    return cards
+    return featured_card, cards
 
 
 def render_stats_items() -> list[html.Li]:
@@ -347,6 +343,10 @@ app.layout = html.Div(
             },
         ),
         html.Div(
+            id="featured-chart",
+            style={"marginBottom": "8px"},
+        ),
+        html.Div(
             id="chart-grid",
             style={
                 "display": "grid",
@@ -371,6 +371,7 @@ app.layout = html.Div(
     Output("status-box", "children"),
     Output("status-box", "style"),
     Output("summary-stats", "children"),
+    Output("featured-chart", "children"),
     Output("chart-grid", "children"),
     Input("initial-load", "n_intervals"),
 )
@@ -389,7 +390,10 @@ def load_and_render(_n_intervals: int):
             },
             render_stats_items(),
             [],
+            [],
         )
+
+    featured_card, chart_cards = build_dashboard_sections()
 
     return (
         "Data loaded successfully.",
@@ -401,7 +405,8 @@ def load_and_render(_n_intervals: int):
             "marginBottom": "14px",
         },
         render_stats_items(),
-        build_chart_cards(),
+        featured_card,
+        chart_cards,
     )
 
 

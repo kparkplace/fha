@@ -83,7 +83,7 @@ def get_adjusted_y_range(capratio_df: pd.DataFrame) -> list[float] | None:
         return None
 
     values = pd.to_numeric(
-        capratio_df[adjusted_columns].stack(dropna=True),
+        capratio_df[adjusted_columns].stack(),
         errors="coerce",
     ).dropna()
     if values.empty:

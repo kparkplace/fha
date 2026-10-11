@@ -65,12 +65,44 @@ def ensure_data_loaded() -> None:
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
 
+def get_adjusted_y_axis_title() -> str:
+    return f"{datetime.now(timezone.utc).year} Dollars"
+
+
+def get_adjusted_y_range(capratio_df: pd.DataFrame) -> list[float] | None:
+    adjusted_columns = [
+        column
+        for column in [
+            "econ_value_in_latest_dollars",
+            "cap_resources_in_latest_dollars",
+            "cashflow_npv_in_latest_dollars",
+        ]
+        if column in capratio_df.columns
+    ]
+    if not adjusted_columns:
+        return None
+
+    values = pd.to_numeric(
+        capratio_df[adjusted_columns].stack(dropna=True),
+        errors="coerce",
+    ).dropna()
+    if values.empty:
+        return None
+
+    min_value = min(float(values.min()), 0.0)
+    max_value = max(float(values.max()), 0.0)
+    span = max_value - min_value
+    padding = span * 0.05 if span else 1.0
+    return [min_value - padding, max_value + padding]
+
+
 def apply_figure_layout(
     fig: go.Figure,
     *,
     title: str,
     y_axis_title: str,
     x_axis_title: str = "Year",
+    y_axis_range: list[float] | None = None,
     legend_title: str | None = None,
     height: int = 360,
     legend_orientation: str = "h",
@@ -93,6 +125,9 @@ def apply_figure_layout(
     )
     fig.update_xaxes(title_text=x_axis_title)
     fig.update_yaxes(title_text=y_axis_title)
+    if y_axis_range is not None:
+        fig.update_yaxes(range=y_axis_range)
+    fig.add_hline(y=0, line_dash="solid", line_color="#374151", line_width=1.25)
     return fig
 
 
@@ -122,12 +157,16 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         color="source",
         line_dash="metric",
     )
-    fig.add_hline(y=0, line_dash="dash", line_color="#64748b")
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
     return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent", height=560)
 
 
-def build_adjusted_figure(capratio_df: pd.DataFrame, metric_column: str, title: str) -> go.Figure | None:
+def build_adjusted_figure(
+    capratio_df: pd.DataFrame,
+    metric_column: str,
+    y_axis_title: str,
+    y_axis_range: list[float] | None,
+) -> go.Figure | None:
     if metric_column not in capratio_df.columns:
         return None
 
@@ -142,7 +181,12 @@ def build_adjusted_figure(capratio_df: pd.DataFrame, metric_column: str, title: 
         color="source",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.0f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title=title, y_axis_title="Value (latest dollars)")
+    return apply_figure_layout(
+        fig,
+        title="",
+        y_axis_title=y_axis_title,
+        y_axis_range=y_axis_range,
+    )
 
 
 def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
@@ -181,22 +225,18 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         hovertemplate="Cohort=%{x}<br>Forecasted=%{y:,.2f}<extra></extra>",
     )
     fig.update_layout(barmode="stack")
-    fig.update_xaxes(title_text="Cohort", tickangle=90)
-    fig.update_yaxes(title_text="Cumulative Claim Rate")
-    fig.update_layout(
-        title={"text": "Observed and Forecasted Cumulative Claim Rate by Cohort", "x": 0.03},
+    fig = apply_figure_layout(
+        fig,
+        title="Observed and Forecasted Cumulative Claim Rate by Cohort",
+        x_axis_title="Cohort",
+        y_axis_title="Cumulative Claim Rate",
         height=420,
-        template="plotly_white",
-        margin={"l": 50, "r": 20, "t": 60, "b": 100},
-        legend_title_text=None,
-        legend={
-            "orientation": "h",
-            "yanchor": "top",
-            "y": -0.2,
-            "xanchor": "left",
-            "x": 0,
-        },
+        legend_title=None,
+        legend_orientation="h",
+        legend_y=-0.2,
+        legend_x=0,
     )
+    fig.update_xaxes(tickangle=90)
     return fig
 
 
@@ -313,21 +353,39 @@ def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
         featured=True,
     )
 
+    adjusted_y_axis_title = get_adjusted_y_axis_title()
+    adjusted_y_axis_range = get_adjusted_y_range(capratio_df)
+
     chart_specs = [
         (
             "Economic Value",
             "",
-            build_adjusted_figure(capratio_df, "econ_value_in_latest_dollars", "Inflation-Adjusted Econ Value (latest dollars)"),
+            build_adjusted_figure(
+                capratio_df,
+                "econ_value_in_latest_dollars",
+                adjusted_y_axis_title,
+                adjusted_y_axis_range,
+            ),
         ),
         (
             "Capital Resources",
             "",
-            build_adjusted_figure(capratio_df, "cap_resources_in_latest_dollars", "Inflation-Adjusted Cap Resources (latest dollars)"),
+            build_adjusted_figure(
+                capratio_df,
+                "cap_resources_in_latest_dollars",
+                adjusted_y_axis_title,
+                adjusted_y_axis_range,
+            ),
         ),
         (
             "Cashflow NPV",
             "",
-            build_adjusted_figure(capratio_df, "cashflow_npv_in_latest_dollars", "Inflation-Adjusted Cashflow NPV (latest dollars)"),
+            build_adjusted_figure(
+                capratio_df,
+                "cashflow_npv_in_latest_dollars",
+                adjusted_y_axis_title,
+                adjusted_y_axis_range,
+            ),
         ),
         (
             "Observed Cumulative Claim Rates",
@@ -370,7 +428,7 @@ def render_stats_items() -> list[html.Li]:
 
 app = Dash(__name__)
 server = app.server
-app.title = "FHA Single-Family Forward Loans Dashboard"
+app.title = "FHA Dashboard"
 
 
 @server.route("/healthz")
@@ -381,7 +439,7 @@ def healthz() -> tuple[str, int]:
 app.layout = html.Div(
     [
         html.H1("FHA Single-Family Forward Loans Dashboard"),
-        html.P("Browser-rendered versions of the FHA cap ratio and claims charts."),
+        html.P("Created by Kevin Park (kevinapark@gmail.com)"),
         html.Ul(id="summary-stats", children=render_stats_items()),
         html.Div(
             id="status-box",

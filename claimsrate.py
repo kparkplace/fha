@@ -1,80 +1,107 @@
+#%%
 from pathlib import Path
 
 import pandas as pd
-from plotnine import aes, element_text, geom_bar, ggplot, guide_legend, labs, scale_fill_manual, theme, theme_classic
+from plotnine import (
+    aes,
+    element_text,
+    geom_bar,
+    geom_line,
+    geom_point,
+    ggplot,
+    guide_legend,
+    labs,
+    scale_fill_manual,
+    theme,
+    theme_classic,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parent
-DATA_PATH = REPO_ROOT / 'cum_claims.parquet'
-OUTPUT_PATH = REPO_ROOT / 'cum_claims.png'
+DATA_PATH = REPO_ROOT / "Data" / "cum_claims.parquet"
 
+#%%
+# Load input data (will raise if missing)
+if not DATA_PATH.exists():
+    raise FileNotFoundError(f"Missing parquet input: {DATA_PATH}. Run data_claims.py first.")
 
-def build_plot_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    if 'metric' in df.columns:
-        df = df[df['metric'] == 'cum_clm_rate'].copy()
+df = pd.read_parquet(DATA_PATH)
 
-    df['cohort'] = pd.to_numeric(df['cohort'], errors='coerce')
-    df['year'] = pd.to_numeric(df['year'], errors='coerce')
-    df['sourcefy'] = pd.to_numeric(df['sourcefy'], errors='coerce')
+#%%
+# Prepare plotting dataframe (flattened from previous helper functions)
+plot_df = df.copy()
+if 'metric' in plot_df.columns:
+    plot_df = plot_df[plot_df['metric'] == 'cum_clm_rate'].copy()
 
-    idx = df.groupby(['cohort', 'year'])['sourcefy'].idxmax()
-    df_latest = df.loc[idx].reset_index(drop=True)
+plot_df['cohort'] = pd.to_numeric(plot_df['cohort'], errors='coerce')
+plot_df['year'] = pd.to_numeric(plot_df['year'], errors='coerce')
+plot_df['sourcefy'] = pd.to_numeric(plot_df['sourcefy'], errors='coerce')
 
-    last_fy = df_latest['sourcefy'].max()
-    df_latest['forecast'] = (df_latest['cohort'] + df_latest['year']) > last_fy
+# pick most recent sourcefy for each cohort/year
+idx = plot_df.groupby(['cohort', 'year'])['sourcefy'].idxmax()
+plot_df_latest = plot_df.loc[idx].reset_index(drop=True)
 
-    max_values = df_latest.groupby(['cohort', 'forecast'], as_index=False)['value'].max()
-    observed = max_values[max_values['forecast'] == False].copy()
-    total = max_values.groupby('cohort', as_index=False)['value'].max().rename(columns={'value': 'total_value'})
+last_fy = plot_df_latest['sourcefy'].max()
+plot_df_latest['forecast'] = (plot_df_latest['cohort'] + plot_df_latest['year']) > last_fy
 
-    plot_df = observed.merge(total, on='cohort', how='left')
-    plot_df['forecast_value'] = plot_df['total_value'] - plot_df['value']
+max_values = plot_df_latest.groupby(['cohort', 'forecast'], as_index=False)['value'].max()
+observed = max_values[max_values['forecast'] == False].copy()
+total = max_values.groupby('cohort', as_index=False)['value'].max().rename(columns={'value': 'total_value'})
 
-    plot_df_long = pd.melt(
-        plot_df,
-        id_vars=['cohort'],
-        value_vars=['value', 'forecast_value'],
-        var_name='segment',
-        value_name='bar_value',
+plot_df_combined = observed.merge(total, on='cohort', how='left')
+plot_df_combined['forecast_value'] = plot_df_combined['total_value'] - plot_df_combined['value']
+
+plot_df_long = pd.melt(
+    plot_df_combined,
+    id_vars=['cohort'],
+    value_vars=['value', 'forecast_value'],
+    var_name='segment',
+    value_name='bar_value',
+)
+plot_df_long['forecast'] = plot_df_long['segment'] == 'forecast_value'
+plot_df_long['forecast'] = pd.Categorical(plot_df_long['forecast'], categories=[True, False], ordered=True)
+plot_df_long = plot_df_long.sort_values(['cohort', 'forecast']).reset_index(drop=True)
+
+#%%
+# Build and display chart inline
+chart = (
+    ggplot(plot_df_long, aes(x='factor(cohort)', y='bar_value', fill='forecast'))
+    + geom_bar(stat='identity', position='stack')
+    + scale_fill_manual(
+        values={False: '#4575b4', True: '#a6bddb'},
+        labels=['Forecasted', 'Observed'],
+        guide=guide_legend(reverse=True),
     )
-    plot_df_long['forecast'] = plot_df_long['segment'] == 'forecast_value'
-    plot_df_long['forecast'] = pd.Categorical(plot_df_long['forecast'], categories=[True, False], ordered=True)
-    return plot_df_long.sort_values(['cohort', 'forecast'])
+    + labs(
+        x='Cohort',
+        y='Cumulative Claim Rate',
+        fill='',
+        caption='Created by Kevin Park\nSource: FHA Actuarial Reviews',
+    )
+    + theme_classic()
+    + theme(axis_text_x=element_text(rotation=90, hjust=1), legend_position='top')
+)
 
+chart
 
-def build_chart(plot_df_long: pd.DataFrame):
-    return (
-        ggplot(plot_df_long, aes(x='factor(cohort)', y='bar_value', fill='forecast'))
-        + geom_bar(stat='identity', position='stack')
-        + scale_fill_manual(
-            values={False: '#4575b4', True: '#a6bddb'},
-            labels=['Forecasted', 'Observed'],
-            guide=guide_legend(reverse=True),
-        )
-        + labs(
-            x='Cohort',
-            y='Cumulative Claim Rate',
-            fill='',
-            caption='Created by Kevin Park\nSource: FHA Actuarial Reviews',
-        )
+#%%
+# Line plot: observed cumulative claim-rate paths by cohort (x=year, y=value)
+obs_ts = plot_df_latest[plot_df_latest['forecast'] == False].copy()
+if obs_ts.empty:
+    print('No observed time-series rows available to plot.')
+else:
+    # ensure numeric year and sort
+    obs_ts['year'] = pd.to_numeric(obs_ts['year'], errors='coerce')
+    obs_ts = obs_ts.dropna(subset=['year', 'value'])
+    obs_ts = obs_ts.sort_values(['cohort', 'year'])
+
+    line_chart = (
+        ggplot(obs_ts, aes(x='year', y='value', color='factor(cohort)', group='cohort'))
+        + geom_line()
+        + geom_point(size=1.5)
+        + labs(x='Year', y='Cumulative Claim Rate', color='Cohort', title='Observed cumulative-claim paths by cohort')
         + theme_classic()
-        + theme(axis_text_x=element_text(rotation=90, hjust=1), legend_position='top')
+        + theme(axis_text_x=element_text(rotation=0, hjust=0.5), legend_position='right')
     )
 
-
-def main():
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(f'Missing parquet input: {DATA_PATH}. Run fha_cum_claims_data.py first.')
-
-    df = pd.read_parquet(DATA_PATH)
-    plot_df_long = build_plot_dataframe(df)
-    chart = build_chart(plot_df_long)
-
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    chart.save(OUTPUT_PATH, width=10.8, height=10.8, dpi=100)
-    print(f'Created {OUTPUT_PATH}')
-
-
-if __name__ == '__main__':
-    main()
+    line_chart

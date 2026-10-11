@@ -33,48 +33,28 @@ p = (ggplot(m, aes('year', 'value', color='source', linetype='metric'))
 )
 p
 # %%
-def plot_inflation_adjusted(
-    df: pd.DataFrame,
-    metrics: tuple = ("econ_value", "cap_resources", "cashflow_npv"),
-    out_file: Path | None = None,
-):
-    """Create and save a faceted line plot of inflation-adjusted metrics.
-
-    Looks for columns named `<metric>_in_latest_dollars` and facets by metric.
-    Returns the ggplot object when created, otherwise returns None.
-    """
-    adj_cols = [f"{c}_in_latest_dollars" for c in metrics]
-    available = [c for c in adj_cols if c in df.columns]
-    if not available:
-        print("No inflation-adjusted columns found; skipping adjusted-values plot")
-        return None
-
-    m = df.melt(id_vars=["year", "source"], value_vars=available, var_name="metric", value_name="value")
-    m = m.dropna(subset=["value"])
-    m["metric"] = m["metric"].str.replace("_in_latest_dollars", "").str.replace("_", " ").str.title()
+# Inflation-adjusted faceted plot (inline for Interactive window)
+adj_metrics = ("econ_value", "cap_resources", "cashflow_npv")
+adj_cols = [f"{c}_in_latest_dollars" for c in adj_metrics]
+available = [c for c in adj_cols if c in df.columns]
+if not available:
+    print("No inflation-adjusted columns found; skipping adjusted-values plot")
+else:
+    m_adj = df.melt(id_vars=["year", "source"], value_vars=available, var_name="metric", value_name="value")
+    m_adj = m_adj.dropna(subset=["value"])
+    m_adj["metric"] = m_adj["metric"].str.replace("_in_latest_dollars", "", regex=False).str.replace("_", " ").str.title()
 
     p_adj = (
-        ggplot(m, aes(x="year", y="value", color="source", group="source"))
+        ggplot(m_adj, aes(x="year", y="value", color="source", group="source"))
         + geom_line()
         + facet_wrap("~metric", scales="free_y")
         + labs(title="Inflation-adjusted values (latest dollars)", y="Value (latest dollars)", x="Year")
         + theme_minimal()
     )
 
-    if out_file is None:
-        out_file = Path(__file__).resolve().parent / "capratio_adjusted.png"
-
-    try:
-        p_adj.save(out_file, dpi=150)
-        print(f"Saved adjusted-values plot to {out_file}")
-    except Exception as e:
-        print(f"Failed saving adjusted-values plot: {e}")
-
-    return p_adj
-
-
-# create and save adjusted-values plot (assumes plotnine available)
-plot_inflation_adjusted(df)
+p_adj
 
 
 
+
+# %%

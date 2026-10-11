@@ -65,13 +65,30 @@ def ensure_data_loaded() -> None:
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
 
-def apply_figure_layout(fig: go.Figure, *, title: str, y_axis_title: str, legend_title: str | None = None, height: int = 360) -> go.Figure:
+def apply_figure_layout(
+    fig: go.Figure,
+    *,
+    title: str,
+    y_axis_title: str,
+    legend_title: str | None = None,
+    height: int = 360,
+    legend_orientation: str = "h",
+    legend_y: float = -0.2,
+    legend_x: float = 0,
+) -> go.Figure:
     fig.update_layout(
         title={"text": title, "x": 0.03},
         height=height,
         template="plotly_white",
         margin={"l": 50, "r": 20, "t": 60, "b": 50},
         legend_title_text=legend_title,
+        legend={
+            "orientation": legend_orientation,
+            "yanchor": "top",
+            "y": legend_y,
+            "xanchor": "left",
+            "x": legend_x,
+        },
     )
     fig.update_xaxes(title_text="Year")
     fig.update_yaxes(title_text=y_axis_title)
@@ -192,12 +209,35 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
 
     observed_df = observed_df.sort_values(["cohort", "year"])
     observed_df["cohort_label"] = observed_df["cohort"].astype("Int64").astype(str)
+    cohort_order = [str(int(cohort)) for cohort in sorted(observed_df["cohort"].dropna().unique())]
+
+    blue_scale = [
+        "#dbeafe",
+        "#bfdbfe",
+        "#93c5fd",
+        "#60a5fa",
+        "#3b82f6",
+        "#2563eb",
+        "#1d4ed8",
+        "#1e40af",
+        "#1e3a8a",
+    ]
+    if cohort_order:
+        if len(cohort_order) == 1:
+            color_map = {cohort_order[0]: blue_scale[-1]}
+        else:
+            color_positions = [round(index * (len(blue_scale) - 1) / (len(cohort_order) - 1)) for index in range(len(cohort_order))]
+            color_map = {label: blue_scale[position] for label, position in zip(cohort_order, color_positions)}
+    else:
+        color_map = {}
 
     fig = px.line(
         observed_df,
         x="year",
         y="value",
         color="cohort_label",
+        category_orders={"cohort_label": cohort_order},
+        color_discrete_map=color_map,
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Rate=%{y:,.2f}<br>Cohort=%{fullData.name}<extra></extra>")
     return apply_figure_layout(
@@ -206,6 +246,9 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         y_axis_title="Cumulative Claim Rate",
         legend_title="Cohort",
         height=420,
+        legend_orientation="v",
+        legend_y=1,
+        legend_x=1.02,
     )
 
 
@@ -278,14 +321,14 @@ def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
             build_adjusted_figure(capratio_df, "cashflow_npv_in_latest_dollars", "Inflation-Adjusted Cashflow NPV (latest dollars)"),
         ),
         (
-            "Claims Stack",
-            "Observed and forecasted cumulative claim-rate totals by cohort.",
-            build_claims_stack_figure(claims_df),
-        ),
-        (
             "Observed Cohort Paths",
             "Observed cumulative claim-rate paths by cohort over policy year.",
             build_claims_line_figure(claims_df),
+        ),
+        (
+            "Claims Stack",
+            "Observed and forecasted cumulative claim-rate totals by cohort.",
+            build_claims_stack_figure(claims_df),
         ),
     ]
 

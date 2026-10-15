@@ -204,7 +204,11 @@ def load_credit_subsidy_data(url: str = DEFAULT_URL) -> pd.DataFrame:
         ignore_index=True,
     )
     combined_df = combined_df[combined_df["fiscal_year"].notnull()].copy()
-    combined_df["fiscal_year_sort"] = combined_df["fiscal_year"].astype(str).str.replace(r" \(P\)$", "", regex=True)
+    combined_df["fiscal_year"] = combined_df["fiscal_year"].map(
+        lambda value: str(value).strip() if pd.notna(value) and str(value).strip() else None
+    )
+    combined_df = combined_df.dropna(subset=["fiscal_year"]).copy()
+    combined_df["fiscal_year_sort"] = combined_df["fiscal_year"].str.replace(r" \(P\)$", "", regex=True)
     combined_df["fiscal_year_sort"] = pd.to_numeric(combined_df["fiscal_year_sort"], errors="coerce")
     combined_df = (
         combined_df.sort_values("fiscal_year_sort")

@@ -320,7 +320,10 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
         return None
 
     plot_df = creditsubsidy_df.copy()
-    plot_df["fiscal_year"] = plot_df["fiscal_year"].astype(str)
+    plot_df["fiscal_year"] = plot_df["fiscal_year"].map(
+        lambda value: str(value).strip() if pd.notna(value) and str(value).strip() else None
+    )
+    plot_df = plot_df.dropna(subset=["fiscal_year"]).copy()
     plot_df["fiscal_year_sort"] = pd.to_numeric(
         plot_df["fiscal_year"].str.replace(r" \(P\)$", "", regex=True),
         errors="coerce",
@@ -332,20 +335,25 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
     if plot_df.empty:
         return None
 
+    bar_years = [str(value) for value in plot_df["fiscal_year"].tolist()]
+    bar_values = plot_df["current_reestimated_rate"].tolist()
+    original_years = [str(value) for value in plot_df["fiscal_year"].dropna().tolist()]
+    original_values = plot_df["original_subsidy_rate"].dropna().tolist()
+
     fig = go.Figure()
     fig.add_bar(
-        x=plot_df["fiscal_year"],
-        y=plot_df["current_reestimated_rate"],
+        x=bar_years,
+        y=bar_values,
         name="Current Estimate",
         marker_color="#4c72b0",
         hovertemplate="FY=%{x}<br>Current=%{y:,.2f}%<extra></extra>",
     )
 
-    original_df = plot_df.dropna(subset=["original_subsidy_rate"])
-    if not original_df.empty:
+    if len(original_years) > 0 and len(original_values) > 0:
+        original_mask = plot_df["original_subsidy_rate"].notna()
         fig.add_scatter(
-            x=original_df["fiscal_year"],
-            y=original_df["original_subsidy_rate"],
+            x=[str(value) for value in plot_df.loc[original_mask, "fiscal_year"].tolist()],
+            y=plot_df.loc[original_mask, "original_subsidy_rate"].tolist(),
             mode="markers",
             name="Original Estimate",
             marker={"color": "#93c5fd", "size": 14, "symbol": "line-ew-open"},

@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+from creditsubsidy import load_credit_subsidy_data
+
 
 REPO_ROOT = Path(__file__).resolve().parent
 CAPRATIO_PATH = REPO_ROOT / "Data" / "capratio.parquet"
@@ -17,8 +19,10 @@ CLAIMS_PATH = REPO_ROOT / "Data" / "cum_claims.parquet"
 DATA_CACHE = {
     "capratio_df": None,
     "claims_df": None,
+    "creditsubsidy_df": None,
     "loaded_at": None,
     "load_error": None,
+    "creditsubsidy_error": None,
 }
 
 
@@ -26,7 +30,11 @@ def ensure_data_loaded() -> None:
     if DATA_CACHE["load_error"] is not None:
         return
 
-    if DATA_CACHE["capratio_df"] is not None and DATA_CACHE["claims_df"] is not None:
+    if (
+        DATA_CACHE["capratio_df"] is not None
+        and DATA_CACHE["claims_df"] is not None
+        and (DATA_CACHE["creditsubsidy_df"] is not None or DATA_CACHE["creditsubsidy_error"] is not None)
+    ):
         return
 
     if not CAPRATIO_PATH.exists():
@@ -63,6 +71,12 @@ def ensure_data_loaded() -> None:
     DATA_CACHE["capratio_df"] = capratio_df
     DATA_CACHE["claims_df"] = claims_df
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
+
+    if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
+        try:
+            DATA_CACHE["creditsubsidy_df"] = load_credit_subsidy_data()
+        except Exception as exc:
+            DATA_CACHE["creditsubsidy_error"] = str(exc)
 
 
 def get_adjusted_y_axis_title() -> str:
@@ -301,6 +315,54 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     )
 
 
+def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figure | None:
+    if creditsubsidy_df is None or creditsubsidy_df.empty:
+        return None
+
+    plot_df = creditsubsidy_df.copy()
+    plot_df["fiscal_year"] = plot_df["fiscal_year"].astype(str)
+    plot_df["fiscal_year_sort"] = pd.to_numeric(
+        plot_df["fiscal_year"].str.replace(r" \(P\)$", "", regex=True),
+        errors="coerce",
+    )
+    plot_df["current_reestimated_rate"] = pd.to_numeric(plot_df["current_reestimated_rate"], errors="coerce")
+    plot_df["original_subsidy_rate"] = pd.to_numeric(plot_df["original_subsidy_rate"], errors="coerce")
+    plot_df = plot_df.sort_values("fiscal_year_sort")
+    plot_df = plot_df.dropna(subset=["current_reestimated_rate"])
+    if plot_df.empty:
+        return None
+
+    fig = go.Figure()
+    fig.add_bar(
+        x=plot_df["fiscal_year"],
+        y=plot_df["current_reestimated_rate"],
+        name="Current Estimate",
+        marker_color="#4c72b0",
+        hovertemplate="FY=%{x}<br>Current=%{y:,.2f}%<extra></extra>",
+    )
+
+    original_df = plot_df.dropna(subset=["original_subsidy_rate"])
+    if not original_df.empty:
+        fig.add_scatter(
+            x=original_df["fiscal_year"],
+            y=original_df["original_subsidy_rate"],
+            mode="markers",
+            name="Original Estimate",
+            marker={"color": "#93c5fd", "size": 14, "symbol": "line-ew-open"},
+            hovertemplate="FY=%{x}<br>Original=%{y:,.2f}%<extra></extra>",
+        )
+
+    fig = apply_figure_layout(
+        fig,
+        title="Credit Subsidy Rates by Book of Business",
+        x_axis_title="Book of Business",
+        y_axis_title="Credit Subsidy Rate (%)",
+        height=420,
+    )
+    fig.update_xaxes(tickangle=90)
+    return fig
+
+
 def build_chart_card(title: str, description: str, figure: go.Figure | None, *, featured: bool = False) -> html.Div:
     card_style = {
         "backgroundColor": "#ffffff",
@@ -343,6 +405,7 @@ def build_chart_card(title: str, description: str, figure: go.Figure | None, *, 
 def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
     capratio_df = DATA_CACHE["capratio_df"]
     claims_df = DATA_CACHE["claims_df"]
+    creditsubsidy_df = DATA_CACHE["creditsubsidy_df"]
     if capratio_df is None or claims_df is None:
         return html.Div(), []
 
@@ -397,6 +460,11 @@ def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
             "By Cohort",
             build_claims_stack_figure(claims_df),
         ),
+        (
+            "Credit Subsidy Rates",
+            "Current re-estimated rates with original estimate markers (OMB Credit Supplement).",
+            build_creditsubsidy_figure(creditsubsidy_df),
+        ),
     ]
 
     cards: list[html.Div] = []
@@ -411,6 +479,7 @@ def render_stats_items() -> list[html.Li]:
         return [
             html.Li("Capratio rows: 0"),
             html.Li("Claims rows: 0"),
+            html.Li("Credit subsidy rows: 0"),
             html.Li("Loaded at: Failed"),
         ]
 
@@ -418,10 +487,18 @@ def render_stats_items() -> list[html.Li]:
     loaded_at_text = loaded_at.strftime("%Y-%m-%d %H:%M:%S UTC") if loaded_at else "Loading..."
     capratio_rows = len(DATA_CACHE["capratio_df"]) if DATA_CACHE["capratio_df"] is not None else 0
     claims_rows = len(DATA_CACHE["claims_df"]) if DATA_CACHE["claims_df"] is not None else 0
+    creditsubsidy_rows = len(DATA_CACHE["creditsubsidy_df"]) if DATA_CACHE["creditsubsidy_df"] is not None else 0
+    chart_count = 7 if DATA_CACHE["creditsubsidy_df"] is not None else 6
     return [
         html.Li(f"Capratio rows: {capratio_rows:,}"),
         html.Li(f"Claims rows: {claims_rows:,}"),
-        html.Li("Charts: 6"),
+        html.Li(f"Credit subsidy rows: {creditsubsidy_rows:,}"),
+        html.Li(f"Charts: {chart_count}"),
+        html.Li(
+            "Credit subsidy data: Unavailable (check network access to White House OMB file)"
+            if DATA_CACHE["creditsubsidy_error"]
+            else "Credit subsidy data: Loaded"
+        ),
         html.Li(f"Loaded at: {loaded_at_text}"),
     ]
 
@@ -504,6 +581,24 @@ def load_and_render(_n_intervals: int):
         )
 
     featured_card, chart_cards = build_dashboard_sections()
+
+    if DATA_CACHE["creditsubsidy_error"]:
+        return (
+            [
+                html.Strong("Core data loaded with warning."),
+                html.Div(f"Credit subsidy chart data unavailable: {DATA_CACHE['creditsubsidy_error']}"),
+            ],
+            {
+                "backgroundColor": "#fffbeb",
+                "border": "1px solid #fcd34d",
+                "padding": "10px 12px",
+                "borderRadius": "10px",
+                "marginBottom": "14px",
+            },
+            render_stats_items(),
+            featured_card,
+            chart_cards,
+        )
 
     return (
         "Data loaded successfully.",

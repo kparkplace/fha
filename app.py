@@ -525,6 +525,13 @@ app.layout = html.Div(
     [
         html.H1("FHA Single-Family Forward Loans Dashboard"),
         html.P("Created by Kevin Park (kevinapark@gmail.com)"),
+        html.P("The Federal Housing Administration (FHA) was created in 1934 'to encourage improvement in housing standards and conditions, to provide a system of mutual mortgage insurance, and for other purposes.'"),
+        html.P("Since then it has insured over 40 million home loans and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund."),
+        html.P("This dashboard provides an overview of the financial health of forward loans* in the MMI Fund."),
+        html.P("FHA regularly publishes data on its portfolio in quarterly and annual reports to Congress, as well as an annual independent actuarial review."),
+        html.P("Under the National Affordable Housing Act of 1990, the MMI Fund is required to maintain a 2 percent capital ratio."),
+        html.P("The capital ratio is defined as the economic value, or sum of capital resources and the net present value of premium revenue and claim losses on existing books of business, as a share of its insurance-in-force."),
+        html.P("* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties."),
         html.Ul(id="summary-stats", children=render_stats_items()),
         html.Div(
             id="status-box",

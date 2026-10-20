@@ -174,7 +174,7 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         line_dash="metric",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Economic Value as a Share of Insurance-in-Force (Percent)", height=560)
+    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Economic Value as a Share of<br>Insurance-in-Force (Percent)", height=560)
 
 
 def build_adjusted_figure(
@@ -245,7 +245,7 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         fig,
         title="Observed and Forecasted Cumulative Claim Rate by Cohort",
         x_axis_title="Cohort",
-        y_axis_title="Claim Terminations as a Share of Original Loan Count (Percent)",
+        y_axis_title="Claim Terminations as a Share of<br>Original Loan Count (Percent)",
         height=420,
         legend_title=None,
         legend_orientation="h",
@@ -307,7 +307,7 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     return apply_figure_layout(
         fig,
         title="Observed Cumulative-Claim Paths by Cohort",
-        y_axis_title="Claim Terminations as a Share of Original Loan Count (Percent)",
+        y_axis_title="Claim Terminations as a Share of<br>Original Loan Count (Percent)",
         x_axis_title="Years Since Origination",
         legend_title="Cohort",
         height=420,

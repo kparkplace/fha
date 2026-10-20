@@ -698,19 +698,11 @@ app.layout = html.Div(
                             style={"display": "inline"}
                         ),
                         html.P(
-                            "The analysis and views shown here are those of the author and do not represent any current or former employer."
+                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
                             "The website is not affiliated with FHA or any government agency.",
-                            style={"display": "inline","color": "#64748b", "fontSize": "0.9rem"}
+                            style={"color": "#64748b", "fontSize": "0.9rem"}
                         ),
                     ],
-                    style={
-                        "backgroundColor": "#f8fafc",
-                        "border": "1px solid #e2e8f0",
-                        "padding": "16px",
-                        "borderRadius": "8px",
-                        "marginBottom": "24px",
-                        "lineHeight": "1.6",
-                    },
                 ),
                 # Dashboard sections
                 html.Div(
@@ -754,14 +746,16 @@ app.layout = html.Div(
                     style={"marginBottom": "24px"},
                 ),
                 # About section
-                build_section_header(
-                    "About",
-                    "Kevin Park"),
-                html.Div(
+                html.Details(
                     [
+                        html.Summary(
+                            "About Me",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "1.1rem", "marginBottom": "12px"}
+                        ),
                         html.P(
-                            "20 years of experience in housing and mortgage markets, with a focus on mortgage insurance, federal housing policy, and credit risk. "
-                            "Experienced in economic and quantitative modeling, policy and portfolio analysis, and applied research across academic, government, and industry settings.",
+                            "I am an economist specializing in mortgage insurance and housing finance policy. "
+                            "I have a PhD in City and Regional Planning from UNC-Chapel Hill, writing my dissertation on mortgage insurance during the Great Financial Crisis. "
+                            "I worked on FHA's TOTAL Mortgage Scorecard underwriting algorithm from 2015 to 2022 and am currently employed by a private mortgage insurance company.",
                             style={"marginBottom": "16px", "lineHeight": "1.6"},
                         ),
                         html.Div(
@@ -793,47 +787,24 @@ app.layout = html.Div(
                             style={"display": "flex", "alignItems": "center"}
                         ),
                     ],
-                    style={
-                        "backgroundColor": "#f8fafc",
-                        "border": "1px solid #e2e8f0",
-                        "padding": "16px",
-                        "borderRadius": "8px",
-                        "marginBottom": "24px",
-                    },
+                    style={"marginBottom": "24px"}
                 ),
                 # Data Sources section
-                build_section_header(
-                    "Data Sources",
-                    "Information about the data used in this dashboard.",
-                ),
-                html.Div(
+                html.Details(
                     [
-                        html.H4("Capital Ratios", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
-                        html.P(
-                            "Capital ratio data is sourced from FHA Actuarial Reviews, which provide annual independent assessments of the Mutual Mortgage Insurance Fund. "
-                            "The capital ratio represents the economic net worth of the Fund relative to insurance-in-force.",
-                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                        html.Summary(
+                            "Data Sources",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "1.1rem", "marginBottom": "12px"}
                         ),
-                        html.H4("Claim Rates", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
                         html.P(
-                            "Cumulative claim rate data shows the proportion of mortgages in each cohort that resulted in insurance claims. "
-                            "Observed rates are based on historical claim experience, while forecasted rates are projections based on actuarial models.",
-                            style={"marginBottom": "16px", "lineHeight": "1.6"},
-                        ),
-                        html.H4("Credit Subsidy Rates", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
-                        html.P(
-                            "Credit subsidy rates reflect the budgetary cost of the FHA loan guarantee program and are reported annually in the Budget of the U.S. Government. "
-                            "These rates are based on the long-term net cost of making or guaranteeing loans.",
+                            "FHA Annual Reports to Congress and independent actuarial reviews are available at https://www.hud.gov/stat/sfh/mortgage-insurance-fund. "
+                            "Historical and projected terminations are found in Appendix G of recent actuarial reviews. "
+                            "Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/ released with the President's Budget. "
+                            "Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from FRED, Federal Reserve Bank of St. Louis.",
                             style={"marginBottom": "0", "lineHeight": "1.6"},
                         ),
                     ],
-                    style={
-                        "backgroundColor": "#f8fafc",
-                        "border": "1px solid #e2e8f0",
-                        "padding": "16px",
-                        "borderRadius": "8px",
-                        "marginBottom": "24px",
-                    },
+                    style={"marginBottom": "24px"}
                 ),
                 dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
             ],

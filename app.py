@@ -422,16 +422,6 @@ def build_chart_card(title: str, description: str, figure: go.Figure | None, *, 
             html.H3(title, style={"marginBottom": "6px"}),
             html.P(description, style={"color": "#475569", "marginTop": "0", "marginBottom": "10px"}),
             dcc.Graph(figure=figure, config={"displaylogo": False, "responsive": True}),
-            html.Details(
-                [
-                    html.Summary("Show data table", style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500"}),
-                    html.Div(
-                        "Data table generation coming soon",
-                        style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f1f5f9", "borderRadius": "6px"},
-                    ),
-                ],
-                style={"marginTop": "12px"},
-            ),
         ],
         style=card_style,
     )

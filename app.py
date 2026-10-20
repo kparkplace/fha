@@ -600,7 +600,7 @@ def render_stats_items() -> list[html.Li]:
 
 app = Dash(__name__)
 server = app.server
-app.title = "FHA Dashboard"
+app.title = "FHA"
 
 
 @server.route("/healthz")
@@ -616,7 +616,7 @@ app.layout = html.Div(
                 [
                     html.Div(
                         [
-                            html.H1("FHA Single-Family Forward Loans Dashboard", style={"marginBottom": "4px"}),
+                            html.H1("FHA Single-Family Forward Loans", style={"marginBottom": "4px"}),
                             html.P("Created by Kevin Park (kevinapark@gmail.com)", style={"marginBottom": "0", "color": "#64748b", "fontSize": "0.9rem"}),
                         ],
                     ),
@@ -643,15 +643,12 @@ app.layout = html.Div(
                             style={"marginBottom": "12px"},
                         ),
                         html.P(
-                            "This dashboard provides an overview of the financial health of forward loans in the MMI Fund. FHA regularly publishes data on its "
-                            "portfolio in quarterly and annual reports to Congress, as well as an annual independent actuarial review. Under the National "
-                            "Affordable Housing Act of 1990, the MMI Fund is required to maintain a 2 percent capital ratio.",
-                            style={"marginBottom": "12px"},
+                            "This website provides an overview of the financial health of forward* loans in the MMI Fund."
                         ),
                         html.P(
                             "* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners "
                             "extract equity from their properties.",
-                            style={"color": "#64748b", "fontSize": "0.9rem"},
+                            style={"color": "#64748b", "fontSize": "0.8rem"},
                         ),
                     ],
                     style={

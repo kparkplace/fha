@@ -796,12 +796,27 @@ app.layout = html.Div(
                             "Data Sources",
                             style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "1.1rem", "marginBottom": "12px"}
                         ),
-                        html.P(
-                            "FHA Annual Reports to Congress and independent actuarial reviews are available at https://www.hud.gov/stat/sfh/mortgage-insurance-fund. "
-                            "Historical and projected terminations are found in Appendix G of recent actuarial reviews. "
-                            "Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/ released with the President's Budget. "
-                            "Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from FRED, Federal Reserve Bank of St. Louis.",
-                            style={"marginBottom": "0", "lineHeight": "1.6"},
+                        html.Div(
+                            [
+                                html.P("FHA Annual Reports to Congress and independent actuarial reviews are available at ", style={"display": "inline"}),
+                                html.A(
+                                    "https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
+                                    href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
+                                    target="_blank",
+                                    rel="noopener noreferrer",
+                                    style={"color": "#3b82f6", "textDecoration": "underline"}
+                                ),
+                                html.P(". Historical and projected terminations are found in Appendix G of recent actuarial reviews. Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement ", style={"display": "inline"}),
+                                html.A(
+                                    "https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                    href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                    target="_blank",
+                                    rel="noopener noreferrer",
+                                    style={"color": "#3b82f6", "textDecoration": "underline"}
+                                ),
+                                html.P(" released with the President's Budget. Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from FRED, Federal Reserve Bank of St. Louis.", style={"display": "inline"}),
+                            ],
+                            style={"lineHeight": "1.6"},
                         ),
                     ],
                     style={"marginBottom": "24px"}

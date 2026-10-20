@@ -458,14 +458,14 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "MMI Fund Capital",
-                    "The National Affordable Housing Act of 1990 requires an annual independent actuarial review"
-                    "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio." \
-                    "The capital ratio is defined the economic net worth of the Fund relative to the insurance-in-force."
-                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized'"
-                    "as the 'remaining obligation on outstanding mortgages.' Current practice uses the amortized value that better meets this definition."  \
-                    "Economic net worth includes both existing capital resources and the net present value of future cash flows."
-                    "The capital ratio has turned negative twice in the last 35 years."
-                    "Losses during the Great Financial Crisis prompted a $1.7 billionh infusion from the US Treasury in 2013.",
+                    "The National Affordable Housing Act of 1990 requires an annual independent actuarial review "
+                    "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio. "
+                    "The capital ratio is defined the economic net worth of the Fund relative to the insurance-in-force. "
+                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized' "
+                    "as the 'remaining obligation on outstanding mortgages.' Current practice uses the amortized value that better meets this definition. "
+                    "Economic net worth includes both existing capital resources and the net present value of future cash flows. "
+                    "The capital ratio has turned negative twice in the last 35 years. "
+                    "Losses during the Great Financial Crisis prompted a $1.7 billion infusion from the US Treasury in 2013.",
                 ),
                 html.Div(
                     [
@@ -491,6 +491,7 @@ def build_dashboard_sections() -> html.Div:
                         ),
                         build_chart_card(
                             "Capital Resources",
+                            "Total capital resources held by the MMI Fund.",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cap_resources_in_latest_dollars",
@@ -500,6 +501,7 @@ def build_dashboard_sections() -> html.Div:
                         ),
                         build_chart_card(
                             "Cashflow Net Present Value",
+                            "Net present value of projected future cash flows of the MMI Fund.",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cashflow_npv_in_latest_dollars",
@@ -526,9 +528,9 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Cumulative Claim Rates",
-                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business"
-                    "over the previous 30 years and project their future performance.",
-                    "By compiling historical actuarial reviews, the data below show 50 years of"
+                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business "
+                    "over the previous 30 years and project their future performance. "
+                    "By compiling historical actuarial reviews, the data below show 50 years of "
                     "claim terminations as a share of insured loans.",
                 ),
                 html.Div(
@@ -563,13 +565,14 @@ def build_dashboard_sections() -> html.Div:
                 [
                     build_section_header(
                         "Credit Subsidy by Cohort",
-                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost"
-                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis." \
-                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government."
-                        "These estimates are revised every year as part of the federal budget process." \
+                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
+                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
+                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government. "
+                        "These estimates are revised every year as part of the federal budget process.",
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",
+                        "Annual credit subsidy cost estimates by origination cohort.",
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                 ],

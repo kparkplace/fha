@@ -23,10 +23,14 @@ DATA_CACHE = {
     "loaded_at": None,
     "load_error": None,
     "creditsubsidy_error": None,
+    "has_loaded": False,
 }
 
 
 def ensure_data_loaded() -> None:
+    if DATA_CACHE["has_loaded"]:
+        return
+    
     if DATA_CACHE["load_error"] is not None:
         return
 
@@ -39,44 +43,52 @@ def ensure_data_loaded() -> None:
 
     if not CAPRATIO_PATH.exists():
         DATA_CACHE["load_error"] = f"Missing parquet input: {CAPRATIO_PATH}"
+        DATA_CACHE["has_loaded"] = True
         return
 
     if not CLAIMS_PATH.exists():
         DATA_CACHE["load_error"] = f"Missing parquet input: {CLAIMS_PATH}"
+        DATA_CACHE["has_loaded"] = True
         return
 
-    capratio_df = pd.read_parquet(CAPRATIO_PATH)
-    claims_df = pd.read_parquet(CLAIMS_PATH)
+    try:
+        capratio_df = pd.read_parquet(CAPRATIO_PATH)
+        claims_df = pd.read_parquet(CLAIMS_PATH)
 
-    if "cap_ratio" not in capratio_df.columns and {"capital", "value", "ratio"}.issubset(capratio_df.columns):
-        capratio_df["cap_ratio"] = 100 * capratio_df["capital"] / (capratio_df["value"] / (capratio_df["ratio"] / 100))
+        if "cap_ratio" not in capratio_df.columns and {"capital", "value", "ratio"}.issubset(capratio_df.columns):
+            capratio_df["cap_ratio"] = 100 * capratio_df["capital"] / (capratio_df["value"] / (capratio_df["ratio"] / 100))
 
-    if (
-        "cap_ratio_unamort" not in capratio_df.columns
-        and "iif_unamort" in capratio_df.columns
-        and "ratio" in capratio_df.columns
-        and "capital" in capratio_df.columns
-    ):
-        capratio_df["cap_ratio_unamort"] = 100 * capratio_df["capital"] / (capratio_df["iif_unamort"] / (capratio_df["ratio"] / 100))
+        if (
+            "cap_ratio_unamort" not in capratio_df.columns
+            and "iif_unamort" in capratio_df.columns
+            and "ratio" in capratio_df.columns
+            and "capital" in capratio_df.columns
+        ):
+            capratio_df["cap_ratio_unamort"] = 100 * capratio_df["capital"] / (capratio_df["iif_unamort"] / (capratio_df["ratio"] / 100))
 
-    claims_df = claims_df.copy()
-    if "metric" in claims_df.columns:
-        claims_df = claims_df[claims_df["metric"] == "cum_clm_rate"].copy()
+        claims_df = claims_df.copy()
+        if "metric" in claims_df.columns:
+            claims_df = claims_df[claims_df["metric"] == "cum_clm_rate"].copy()
 
-    claims_df["cohort"] = pd.to_numeric(claims_df["cohort"], errors="coerce")
-    claims_df["year"] = pd.to_numeric(claims_df["year"], errors="coerce")
-    claims_df["sourcefy"] = pd.to_numeric(claims_df["sourcefy"], errors="coerce")
-    claims_df["value"] = pd.to_numeric(claims_df["value"], errors="coerce")
+        claims_df["cohort"] = pd.to_numeric(claims_df["cohort"], errors="coerce")
+        claims_df["year"] = pd.to_numeric(claims_df["year"], errors="coerce")
+        claims_df["sourcefy"] = pd.to_numeric(claims_df["sourcefy"], errors="coerce")
+        claims_df["value"] = pd.to_numeric(claims_df["value"], errors="coerce")
 
-    DATA_CACHE["capratio_df"] = capratio_df
-    DATA_CACHE["claims_df"] = claims_df
-    DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
+        DATA_CACHE["capratio_df"] = capratio_df
+        DATA_CACHE["claims_df"] = claims_df
+        DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
-    if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
-        try:
-            DATA_CACHE["creditsubsidy_df"] = load_credit_subsidy_data()
-        except Exception as exc:
-            DATA_CACHE["creditsubsidy_error"] = str(exc)
+        if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
+            try:
+                DATA_CACHE["creditsubsidy_df"] = load_credit_subsidy_data()
+            except Exception as exc:
+                DATA_CACHE["creditsubsidy_error"] = str(exc)
+        
+        DATA_CACHE["has_loaded"] = True
+    except Exception as exc:
+        DATA_CACHE["load_error"] = f"Failed to load data: {str(exc)}"
+        DATA_CACHE["has_loaded"] = True
 
 
 def get_adjusted_y_axis_title() -> str:
@@ -695,7 +707,7 @@ app.layout = html.Div(
                     id="sections-container",
                     children=[],
                 ),
-                dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
+                dcc.Interval(id="initial-load", interval=500, n_intervals=0),
             ],
             style={
                 "maxWidth": "1440px",

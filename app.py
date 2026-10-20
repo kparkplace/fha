@@ -371,7 +371,22 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
     return fig
 
 
+def build_section_header(title: str, description: str | None = None) -> html.Div:
+    """Build a section header with title and optional description."""
+    return html.Div(
+        [
+            html.H2(title, style={"marginBottom": "6px", "marginTop": "24px", "color": "#1e293b"}),
+            html.P(
+                description,
+                style={"color": "#64748b", "marginTop": "0", "marginBottom": "16px", "lineHeight": "1.6", "fontSize": "0.95rem"},
+            ) if description else None,
+        ],
+        style={"borderBottom": "2px solid #e2e8f0", "paddingBottom": "12px"},
+    )
+
+
 def build_chart_card(title: str, description: str, figure: go.Figure | None, *, featured: bool = False) -> html.Div:
+    """Build a chart card with title, description, and optional figure."""
     card_style = {
         "backgroundColor": "#ffffff",
         "border": "1px solid #dbe2ea",
@@ -405,81 +420,157 @@ def build_chart_card(title: str, description: str, figure: go.Figure | None, *, 
             html.H3(title, style={"marginBottom": "6px"}),
             html.P(description, style={"color": "#475569", "marginTop": "0", "marginBottom": "10px"}),
             dcc.Graph(figure=figure, config={"displaylogo": False, "responsive": True}),
+            html.Details(
+                [
+                    html.Summary("Show data table", style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500"}),
+                    html.Div(
+                        "Data table generation coming soon",
+                        style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f1f5f9", "borderRadius": "6px"},
+                    ),
+                ],
+                style={"marginTop": "12px"},
+            ),
         ],
         style=card_style,
     )
 
 
-def build_dashboard_sections() -> tuple[html.Div, list[html.Div]]:
+def build_dashboard_sections() -> html.Div:
+    """Build all dashboard sections organized by module."""
     capratio_df = DATA_CACHE["capratio_df"]
     claims_df = DATA_CACHE["claims_df"]
     creditsubsidy_df = DATA_CACHE["creditsubsidy_df"]
     if capratio_df is None or claims_df is None:
-        return html.Div(), []
-
-    featured_card = build_chart_card(
-        "Capital Ratios",
-        "Capital ratio and unamortized capital ratio by source.",
-        build_capital_ratio_figure(capratio_df),
-        featured=True,
-    )
+        return html.Div()
 
     adjusted_y_axis_title = get_adjusted_y_axis_title()
     adjusted_y_axis_range = get_adjusted_y_range(capratio_df)
 
-    chart_specs = [
-        (
-            "Economic Value",
-            "",
-            build_adjusted_figure(
-                capratio_df,
-                "econ_value_in_latest_dollars",
-                adjusted_y_axis_title,
-                adjusted_y_axis_range,
-            ),
-        ),
-        (
-            "Capital Resources",
-            "",
-            build_adjusted_figure(
-                capratio_df,
-                "cap_resources_in_latest_dollars",
-                adjusted_y_axis_title,
-                adjusted_y_axis_range,
-            ),
-        ),
-        (
-            "Cashflow NPV",
-            "",
-            build_adjusted_figure(
-                capratio_df,
-                "cashflow_npv_in_latest_dollars",
-                adjusted_y_axis_title,
-                adjusted_y_axis_range,
-            ),
-        ),
-        (
-            "Observed Cumulative Claim Rates",
-            "By Cohort and Years Since Origination",
-            build_claims_line_figure(claims_df),
-        ),
-        (
-            "Observed and Forecasted Cumulative Claim Rates",
-            "By Cohort",
-            build_claims_stack_figure(claims_df),
-        ),
-        (
-            "Credit Subsidy Rates",
-            "Current re-estimated rates with original estimate markers (OMB Credit Supplement).",
-            build_creditsubsidy_figure(creditsubsidy_df),
-        ),
-    ]
+    sections = []
 
-    cards: list[html.Div] = []
-    for title, description, figure in chart_specs:
-        cards.append(build_chart_card(title, description, figure))
+    # MMI Fund Capital Section
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "MMI Fund Capital",
+                    "The capital ratio measures the economic strength of the Mutual Mortgage Insurance Fund. "
+                    "It is calculated as the economic value (capital resources plus net present value of future cashflows) "
+                    "divided by insurance-in-force. Under federal law, the MMI Fund must maintain a 2 percent capital ratio.",
+                ),
+                html.Div(
+                    [
+                        build_chart_card(
+                            "Capital Ratios by Source",
+                            "Capital ratio and unamortized capital ratio by source.",
+                            build_capital_ratio_figure(capratio_df),
+                        ),
+                    ],
+                    style={"marginBottom": "16px"},
+                ),
+                html.Div(
+                    [
+                        build_chart_card(
+                            "Economic Value",
+                            "The current market value of the fund's assets and liabilities, expressed in " + adjusted_y_axis_title + ".",
+                            build_adjusted_figure(
+                                capratio_df,
+                                "econ_value_in_latest_dollars",
+                                adjusted_y_axis_title,
+                                adjusted_y_axis_range,
+                            ),
+                        ),
+                        build_chart_card(
+                            "Capital Resources",
+                            "Net worth of the fund (reserves and balances), expressed in " + adjusted_y_axis_title + ".",
+                            build_adjusted_figure(
+                                capratio_df,
+                                "cap_resources_in_latest_dollars",
+                                adjusted_y_axis_title,
+                                adjusted_y_axis_range,
+                            ),
+                        ),
+                        build_chart_card(
+                            "Cashflow NPV",
+                            "Net present value of expected future premium revenue minus claim losses, expressed in " + adjusted_y_axis_title + ".",
+                            build_adjusted_figure(
+                                capratio_df,
+                                "cashflow_npv_in_latest_dollars",
+                                adjusted_y_axis_title,
+                                adjusted_y_axis_range,
+                            ),
+                        ),
+                    ],
+                    style={
+                        "display": "grid",
+                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
+                        "gap": "14px",
+                        "alignItems": "start",
+                    },
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
 
-    return featured_card, cards
+    # Cumulative Claim Rates Section
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "Cumulative Claim Rates",
+                    "Claims data tracks the rate at which insured loans result in claims against the MMI Fund. "
+                    "The cumulative claim rate is expressed as a percentage of loans in each origination cohort. "
+                    "Claims typically rise in the early years of a loan and plateau as the loan matures.",
+                ),
+                html.Div(
+                    [
+                        build_chart_card(
+                            "Observed Cumulative Claim Rates",
+                            "Cumulative claims by cohort and years since origination.",
+                            build_claims_line_figure(claims_df),
+                        ),
+                        build_chart_card(
+                            "Observed and Forecasted Cumulative Claim Rates",
+                            "Cumulative claims by cohort with projections for future years.",
+                            build_claims_stack_figure(claims_df),
+                        ),
+                    ],
+                    style={
+                        "display": "grid",
+                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
+                        "gap": "14px",
+                        "alignItems": "start",
+                    },
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
+
+    # Credit Subsidy Rates Section
+    if creditsubsidy_df is not None:
+        sections.append(
+            html.Div(
+                [
+                    build_section_header(
+                        "Credit Subsidy by Cohort",
+                        "The credit subsidy rate represents the estimated long-term cost to the government of insuring a loan, "
+                        "calculated as a share of the mortgage amount. It reflects both the probability of default and expected "
+                        "recovery rates. This data comes from the White House Office of Management and Budget (OMB) Credit Supplement.",
+                    ),
+                    build_chart_card(
+                        "Credit Subsidy Rates",
+                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
+                        "re-estimates reflect updated expectations as the cohort ages.",
+                        build_creditsubsidy_figure(creditsubsidy_df),
+                    ),
+                ],
+                style={"marginBottom": "24px"},
+            )
+        )
+
+    return html.Div(sections)
 
 
 def render_stats_items() -> list[html.Li]:
@@ -523,48 +614,112 @@ def healthz() -> tuple[str, int]:
 
 app.layout = html.Div(
     [
-        html.H1("FHA Single-Family Forward Loans Dashboard"),
-        html.P("Created by Kevin Park (kevinapark@gmail.com)"),
-        html.P("The Federal Housing Administration (FHA) was created in 1934 'to encourage improvement in housing standards and conditions, to provide a system of mutual mortgage insurance, and for other purposes.'"),
-        html.P("Since then it has insured over 40 million home loans and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund."),
-        html.P("This dashboard provides an overview of the financial health of forward loans* in the MMI Fund."),
-        html.P("FHA regularly publishes data on its portfolio in quarterly and annual reports to Congress, as well as an annual independent actuarial review."),
-        html.P("Under the National Affordable Housing Act of 1990, the MMI Fund is required to maintain a 2 percent capital ratio."),
-        html.P("The capital ratio is defined as the economic value, or sum of capital resources and the net present value of premium revenue and claim losses on existing books of business, as a share of its insurance-in-force."),
-        html.P("* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties."),
-        html.Ul(id="summary-stats", children=render_stats_items()),
-        html.Div(
-            id="status-box",
-            children="Loading chart data...",
+        # Header
+        html.Header(
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.H1("FHA Single-Family Forward Loans Dashboard", style={"marginBottom": "4px"}),
+                            html.P("Created by Kevin Park (kevinapark@gmail.com)", style={"marginBottom": "0", "color": "#64748b", "fontSize": "0.9rem"}),
+                        ],
+                    ),
+                ],
+                style={"maxWidth": "1440px", "margin": "0 auto"},
+            ),
             style={
-                "backgroundColor": "#eff6ff",
-                "border": "1px solid #93c5fd",
-                "padding": "10px 12px",
-                "borderRadius": "10px",
-                "marginBottom": "14px",
+                "backgroundColor": "#ffffff",
+                "borderBottom": "1px solid #e2e8f0",
+                "padding": "20px 18px",
+                "marginBottom": "24px",
             },
         ),
+        # Main content
         html.Div(
-            id="featured-chart",
-            style={"marginBottom": "8px"},
-        ),
-        html.Div(
-            id="chart-grid",
+            [
+                # Intro text
+                html.Div(
+                    [
+                        html.P(
+                            "The Federal Housing Administration (FHA) was created in 1934 'to encourage improvement in housing standards and conditions, "
+                            "to provide a system of mutual mortgage insurance, and for other purposes.' Since then it has insured over 40 million home loans "
+                            "and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund.",
+                            style={"marginBottom": "12px"},
+                        ),
+                        html.P(
+                            "This dashboard provides an overview of the financial health of forward loans in the MMI Fund. FHA regularly publishes data on its "
+                            "portfolio in quarterly and annual reports to Congress, as well as an annual independent actuarial review. Under the National "
+                            "Affordable Housing Act of 1990, the MMI Fund is required to maintain a 2 percent capital ratio.",
+                            style={"marginBottom": "12px"},
+                        ),
+                        html.P(
+                            "* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners "
+                            "extract equity from their properties.",
+                            style={"color": "#64748b", "fontSize": "0.9rem"},
+                        ),
+                    ],
+                    style={
+                        "backgroundColor": "#f8fafc",
+                        "border": "1px solid #e2e8f0",
+                        "padding": "16px",
+                        "borderRadius": "8px",
+                        "marginBottom": "24px",
+                        "lineHeight": "1.6",
+                    },
+                ),
+                # Status box
+                html.Div(
+                    id="status-box",
+                    children="Loading chart data...",
+                    style={
+                        "backgroundColor": "#eff6ff",
+                        "border": "1px solid #93c5fd",
+                        "padding": "12px 14px",
+                        "borderRadius": "8px",
+                        "marginBottom": "24px",
+                        "fontSize": "0.95rem",
+                    },
+                ),
+                # Summary stats
+                html.Details(
+                    [
+                        html.Summary(
+                            "Data summary",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "marginBottom": "12px"},
+                        ),
+                        html.Ul(
+                            id="summary-stats",
+                            children=render_stats_items(),
+                            style={
+                                "display": "grid",
+                                "gridTemplateColumns": "repeat(auto-fit, minmax(200px, 1fr))",
+                                "gap": "8px",
+                                "listStyle": "none",
+                                "paddingLeft": "0",
+                                "margin": "0",
+                            },
+                        ),
+                    ],
+                    style={"marginBottom": "24px"},
+                ),
+                # Dashboard sections
+                html.Div(
+                    id="sections-container",
+                    children=[],
+                ),
+                dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
+            ],
             style={
-                "display": "grid",
-                "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
-                "gap": "14px",
-                "alignItems": "start",
+                "maxWidth": "1440px",
+                "margin": "0 auto",
+                "padding": "0 18px 24px 18px",
             },
         ),
-        dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
     ],
     style={
         "fontFamily": "Segoe UI, sans-serif",
-        "padding": "18px",
-        "maxWidth": "1440px",
-        "margin": "0 auto",
-        "backgroundColor": "#f8fafc",
+        "backgroundColor": "#ffffff",
+        "color": "#1e293b",
     },
 )
 
@@ -573,8 +728,7 @@ app.layout = html.Div(
     Output("status-box", "children"),
     Output("status-box", "style"),
     Output("summary-stats", "children"),
-    Output("featured-chart", "children"),
-    Output("chart-grid", "children"),
+    Output("sections-container", "children"),
     Input("initial-load", "n_intervals"),
 )
 def load_and_render(_n_intervals: int):
@@ -586,16 +740,24 @@ def load_and_render(_n_intervals: int):
             {
                 "backgroundColor": "#fef2f2",
                 "border": "1px solid #fca5a5",
-                "padding": "10px 12px",
-                "borderRadius": "10px",
-                "marginBottom": "14px",
+                "padding": "12px 14px",
+                "borderRadius": "8px",
+                "marginBottom": "24px",
             },
             render_stats_items(),
             [],
-            [],
         )
 
-    featured_card, chart_cards = build_dashboard_sections()
+    sections = build_dashboard_sections()
+
+    status_style = {
+        "backgroundColor": "#ecfdf3",
+        "border": "1px solid #86efac",
+        "padding": "12px 14px",
+        "borderRadius": "8px",
+        "marginBottom": "24px",
+        "fontSize": "0.95rem",
+    }
 
     if DATA_CACHE["creditsubsidy_error"]:
         return (
@@ -606,27 +768,19 @@ def load_and_render(_n_intervals: int):
             {
                 "backgroundColor": "#fffbeb",
                 "border": "1px solid #fcd34d",
-                "padding": "10px 12px",
-                "borderRadius": "10px",
-                "marginBottom": "14px",
+                "padding": "12px 14px",
+                "borderRadius": "8px",
+                "marginBottom": "24px",
             },
             render_stats_items(),
-            featured_card,
-            chart_cards,
+            sections,
         )
 
     return (
         "Data loaded successfully.",
-        {
-            "backgroundColor": "#ecfdf3",
-            "border": "1px solid #86efac",
-            "padding": "10px 12px",
-            "borderRadius": "10px",
-            "marginBottom": "14px",
-        },
+        status_style,
         render_stats_items(),
-        featured_card,
-        chart_cards,
+        sections,
     )
 
 

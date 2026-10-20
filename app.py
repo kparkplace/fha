@@ -616,7 +616,13 @@ app.layout = html.Div(
                 [
                     html.Div(
                         [
-                            html.H1("FHA Single-Family Forward Loans", style={"marginBottom": "4px"}),
+                            html.Div(
+                                [
+                                    html.H1("FHA Single-Family Forward Loans", style={"marginBottom": "4px", "display": "inline"}),
+                                    html.Span("*", style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "marginLeft": "4px"}),
+                                ],
+                                style={"display": "flex", "alignItems": "baseline"}
+                            ),
                             html.P("Created by Kevin Park (kevinapark@gmail.com)", style={"marginBottom": "0", "color": "#64748b", "fontSize": "0.9rem"}),
                         ],
                     ),
@@ -643,12 +649,25 @@ app.layout = html.Div(
                             style={"marginBottom": "12px"},
                         ),
                         html.P(
-                            "This website provides an overview of the financial health of forward* loans in the MMI Fund."
+                            "This website provides an overview of the financial health of forward",
+                            style={"display": "inline"}
+                        ),
+                        html.Details(
+                            [
+                                html.Summary(
+                                    "*",
+                                    style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"}
+                                ),
+                                html.P(
+                                    "Forward loans exclude FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties.",
+                                    style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"}
+                                ),
+                            ],
+                            style={"display": "inline"}
                         ),
                         html.P(
-                            "* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners "
-                            "extract equity from their properties.",
-                            style={"color": "#64748b", "fontSize": "0.8rem"},
+                            " loans in the MMI Fund.",
+                            style={"display": "inline"}
                         ),
                     ],
                     style={

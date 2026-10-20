@@ -163,6 +163,8 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
             "cap_ratio_unamort": "Capital Ratio (Unamortized)",
         }
     )
+    
+    plot_df["value"] = plot_df["value"] * 100
 
     fig = px.line(
         plot_df.sort_values(["source", "metric", "year"]),
@@ -172,7 +174,7 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         line_dash="metric",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent", height=560)
+    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Economic Value as a Share of Insurance-in-Force (Percent)", height=560)
 
 
 def build_adjusted_figure(
@@ -243,7 +245,7 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
         fig,
         title="Observed and Forecasted Cumulative Claim Rate by Cohort",
         x_axis_title="Cohort",
-        y_axis_title="Cumulative Claim Rate",
+        y_axis_title="Claim Terminations as a Share of Original Loan Count (Percent)",
         height=420,
         legend_title=None,
         legend_orientation="h",
@@ -305,7 +307,7 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     return apply_figure_layout(
         fig,
         title="Observed Cumulative-Claim Paths by Cohort",
-        y_axis_title="Cumulative Claim Rate",
+        y_axis_title="Claim Terminations as a Share of Original Loan Count (Percent)",
         x_axis_title="Years Since Origination",
         legend_title="Cohort",
         height=420,
@@ -356,7 +358,7 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
             y=plot_df.loc[original_mask, "original_subsidy_rate"].tolist(),
             mode="markers",
             name="Original Estimate",
-            marker={"color": "#93c5fd", "size": 14, "symbol": "line-ew-open"},
+            marker={"color": "#93c5fd", "size": 8, "symbol": "circle"},
             hovertemplate="FY=%{x}<br>Original=%{y:,.2f}%<extra></extra>",
         )
 

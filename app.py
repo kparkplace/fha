@@ -80,7 +80,7 @@ def ensure_data_loaded() -> None:
 
 
 def get_adjusted_y_axis_title() -> str:
-    return f"{datetime.now(timezone.utc).year} Dollars"
+    return f"{datetime.now(timezone.utc).year} Dollars, Millions"
 
 
 def get_adjusted_y_range(capratio_df: pd.DataFrame) -> list[float] | None:

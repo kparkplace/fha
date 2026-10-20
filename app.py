@@ -572,6 +572,7 @@ def build_dashboard_sections() -> html.Div:
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",
+                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; re-estimates reflect updated expectations as the cohort ages.",
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                 ],

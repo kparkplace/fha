@@ -672,7 +672,7 @@ app.layout = html.Div(
                 html.Details(
                     [
                         html.Summary(
-                            "Data summary",
+                            "Load summary",
                             style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "marginBottom": "12px"},
                         ),
                         html.Ul(

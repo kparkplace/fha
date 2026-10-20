@@ -446,9 +446,11 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "MMI Fund Capital",
-                    "The capital ratio measures the economic strength of the Mutual Mortgage Insurance Fund. "
-                    "It is calculated as the economic value (capital resources plus net present value of future cashflows) "
-                    "divided by insurance-in-force. Under federal law, the MMI Fund must maintain a 2 percent capital ratio.",
+                    "The National Affordable Housing Act of 1990 requires an annual independent actuarial review"
+                    "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio. "
+                    "The capital ratio is defined the economic net worth of the Fund relative to the insurance-in-force. "
+                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized' "
+                    "in a way that includes some amortized loans.",
                 ),
                 html.Div(
                     [
@@ -511,9 +513,10 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Cumulative Claim Rates",
-                    "Claims data tracks the rate at which insured loans result in claims against the MMI Fund. "
-                    "The cumulative claim rate is expressed as a percentage of loans in each origination cohort. "
-                    "Claims typically rise in the early years of a loan and plateau as the loan matures.",
+                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business"
+                    "over the previous 30 years and project their future performance. "
+                    "By compiling historical actuarial reviews, the data below show 50 years of "
+                    "claim terminations as a share of insured loans.",
                 ),
                 html.Div(
                     [
@@ -547,14 +550,13 @@ def build_dashboard_sections() -> html.Div:
                 [
                     build_section_header(
                         "Credit Subsidy by Cohort",
-                        "The credit subsidy rate represents the estimated long-term cost to the government of insuring a loan, "
-                        "calculated as a share of the mortgage amount. It reflects both the probability of default and expected "
-                        "recovery rates. This data comes from the White House Office of Management and Budget (OMB) Credit Supplement.",
+                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost"
+                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
+                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government. "
+                        "These estimates are revised every year as part of the federal budget process.",
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",
-                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
-                        "re-estimates reflect updated expectations as the cohort ages.",
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                 ],
@@ -676,7 +678,7 @@ app.layout = html.Div(
                 html.Details(
                     [
                         html.Summary(
-                            "Data summary",
+                            "Load summary",
                             style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "marginBottom": "12px"},
                         ),
                         html.Ul(

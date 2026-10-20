@@ -159,8 +159,8 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
 
     plot_df["metric"] = plot_df["metric"].replace(
         {
-            "cap_ratio": "Capital Ratio",
-            "cap_ratio_unamort": "Capital Ratio (Unamortized)",
+            "cap_ratio": "Amortized IIF",
+            "cap_ratio_unamort": "Unamortized IIF",
         }
     )
     

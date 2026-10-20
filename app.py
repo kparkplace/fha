@@ -174,7 +174,7 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         line_dash="metric",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent", height=560)
+    return apply_figure_layout(fig, title="", y_axis_title="Percent", height=560)
 
 
 def build_adjusted_figure(
@@ -243,7 +243,7 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     fig.update_layout(barmode="stack")
     fig = apply_figure_layout(
         fig,
-        title="Observed and Forecasted Cumulative Claim Rate by Cohort",
+        title="",
         x_axis_title="Cohort",
         y_axis_title="Percent",
         height=420,
@@ -306,7 +306,7 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     fig.update_traces(hovertemplate="Year=%{x}<br>Rate=%{y:,.2f}<br>Cohort=%{fullData.name}<extra></extra>")
     return apply_figure_layout(
         fig,
-        title="Observed Cumulative-Claim Paths by Cohort",
+        title="",
         y_axis_title="Percent",
         x_axis_title="Years Since Origination",
         legend_title="Cohort",
@@ -364,7 +364,7 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
 
     fig = apply_figure_layout(
         fig,
-        title="Credit Subsidy Rates by Book of Business",
+        title="",
         x_axis_title="Book of Business",
         y_axis_title="Percent",
         height=420,

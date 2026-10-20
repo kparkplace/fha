@@ -174,7 +174,7 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         line_dash="metric",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
-    return apply_figure_layout(fig, title="Capital Ratios by Source", y_axis_title="Percent", height=560)
+    return apply_figure_layout(fig, title="", y_axis_title="Percent", height=560)
 
 
 def build_adjusted_figure(
@@ -243,7 +243,7 @@ def build_claims_stack_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     fig.update_layout(barmode="stack")
     fig = apply_figure_layout(
         fig,
-        title="Observed and Forecasted Cumulative Claim Rate by Cohort",
+        title="",
         x_axis_title="Cohort",
         y_axis_title="Percent",
         height=420,
@@ -306,7 +306,7 @@ def build_claims_line_figure(claims_df: pd.DataFrame) -> go.Figure | None:
     fig.update_traces(hovertemplate="Year=%{x}<br>Rate=%{y:,.2f}<br>Cohort=%{fullData.name}<extra></extra>")
     return apply_figure_layout(
         fig,
-        title="Observed Cumulative-Claim Paths by Cohort",
+        title="",
         y_axis_title="Percent",
         x_axis_title="Years Since Origination",
         legend_title="Cohort",
@@ -364,7 +364,7 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
 
     fig = apply_figure_layout(
         fig,
-        title="Credit Subsidy Rates by Book of Business",
+        title="",
         x_axis_title="Book of Business",
         y_axis_title="Percent",
         height=420,
@@ -446,15 +446,20 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "MMI Fund Capital",
-                    "The capital ratio measures the economic strength of the Mutual Mortgage Insurance Fund. "
-                    "It is calculated as the economic value (capital resources plus net present value of future cashflows) "
-                    "divided by insurance-in-force. Under federal law, the MMI Fund must maintain a 2 percent capital ratio.",
+                    "The National Affordable Housing Act of 1990 requires and annual independent actuarial review"
+                    "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio." \
+                    "The capital ratio is defined the economic net worth of the Fund relative to the insurance-in-force."
+                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized'"
+                    "as the 'remaining obligation on outstanding mortgages.' Current practice uses the amortized value that better meets this definition."  \
+                    "Economic net worth includes both existing capital resources and the net present value of future cash flows."
+                    "The capital ratio has turned negative twice in the last 35 years."
+                    "Losses during the Great Financial Crisis prompted a $1.7 billionh infusion from the US Treasury in 2013.",
                 ),
                 html.Div(
                     [
                         build_chart_card(
-                            "Capital Ratios by Source",
-                            "Capital ratio and unamortized capital ratio by source.",
+                            "Capital Ratios",
+                            "Economic net worth as a share of insurance-in-force.",
                             build_capital_ratio_figure(capratio_df),
                         ),
                     ],
@@ -463,8 +468,8 @@ def build_dashboard_sections() -> html.Div:
                 html.Div(
                     [
                         build_chart_card(
-                            "Economic Value",
-                            "The current market value of the fund's assets and liabilities, expressed in " + adjusted_y_axis_title + ".",
+                            "Economic Net Worth",
+                            "The sum of capital resources and net present value of cash flows.",
                             build_adjusted_figure(
                                 capratio_df,
                                 "econ_value_in_latest_dollars",
@@ -474,7 +479,6 @@ def build_dashboard_sections() -> html.Div:
                         ),
                         build_chart_card(
                             "Capital Resources",
-                            "Net worth of the fund (reserves and balances), expressed in " + adjusted_y_axis_title + ".",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cap_resources_in_latest_dollars",
@@ -483,8 +487,7 @@ def build_dashboard_sections() -> html.Div:
                             ),
                         ),
                         build_chart_card(
-                            "Cashflow NPV",
-                            "Net present value of expected future premium revenue minus claim losses, expressed in " + adjusted_y_axis_title + ".",
+                            "Cashflow Net Present Value",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cashflow_npv_in_latest_dollars",
@@ -511,9 +514,10 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Cumulative Claim Rates",
-                    "Claims data tracks the rate at which insured loans result in claims against the MMI Fund. "
-                    "The cumulative claim rate is expressed as a percentage of loans in each origination cohort. "
-                    "Claims typically rise in the early years of a loan and plateau as the loan matures.",
+                    "The annual actuarial reviews of the MMI Fund include the loan performance of book of business"
+                    "over the previous 30 years and project their future performance.",
+                    "By compiling historical actuarial reviews, the data below show 50 years of"
+                    "claim terminations as a share of insured loans.",
                 ),
                 html.Div(
                     [
@@ -524,7 +528,7 @@ def build_dashboard_sections() -> html.Div:
                         ),
                         build_chart_card(
                             "Observed and Forecasted Cumulative Claim Rates",
-                            "Cumulative claims by cohort with projections for future years.",
+                            "Cumulative claims by cohort.",
                             build_claims_stack_figure(claims_df),
                         ),
                     ],
@@ -547,14 +551,14 @@ def build_dashboard_sections() -> html.Div:
                 [
                     build_section_header(
                         "Credit Subsidy by Cohort",
-                        "The credit subsidy rate represents the estimated long-term cost to the government of insuring a loan, "
-                        "calculated as a share of the mortgage amount. It reflects both the probability of default and expected "
-                        "recovery rates. This data comes from the White House Office of Management and Budget (OMB) Credit Supplement.",
+                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost"
+                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basi." \
+                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government."
+                        "These esimates are revised every year as part of the federal budget process." \
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",
-                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
-                        "re-estimates reflect updated expectations as the cohort ages.",
+                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; re-estimates reflect updated expectations as the cohort ages.",
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                 ],
@@ -639,15 +643,8 @@ app.layout = html.Div(
                             style={"marginBottom": "12px"},
                         ),
                         html.P(
-                            "This dashboard provides an overview of the financial health of forward loans in the MMI Fund. FHA regularly publishes data on its "
-                            "portfolio in quarterly and annual reports to Congress, as well as an annual independent actuarial review. Under the National "
-                            "Affordable Housing Act of 1990, the MMI Fund is required to maintain a 2 percent capital ratio.",
+                            "This website provides a historical overview of the financial condition of forward loans in the MMI Fund.",
                             style={"marginBottom": "12px"},
-                        ),
-                        html.P(
-                            "* Forward loans excludes FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners "
-                            "extract equity from their properties.",
-                            style={"color": "#64748b", "fontSize": "0.9rem"},
                         ),
                     ],
                     style={

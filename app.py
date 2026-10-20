@@ -602,6 +602,28 @@ app = Dash(__name__)
 server = app.server
 app.title = "FHA"
 
+# Add Font Awesome for social icons
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
+
 
 @server.route("/healthz")
 def healthz() -> tuple[str, int]:
@@ -623,7 +645,13 @@ app.layout = html.Div(
                                 ],
                                 style={"display": "flex", "alignItems": "baseline"}
                             ),
-                            html.P("Created by Kevin Park (kevinapark@gmail.com)", style={"marginBottom": "0", "color": "#64748b", "fontSize": "0.9rem"}),
+                            html.Div(
+                                [
+                                    html.Span(f"© {datetime.now().year} Kevin Park", style={"color": "#64748b", "fontSize": "0.9rem", "marginRight": "12px"}),
+                                    
+                                ],
+                                style={"display": "flex", "alignItems": "center"}
+                            ),
                         ],
                     ),
                 ],
@@ -679,7 +707,12 @@ app.layout = html.Div(
                         "lineHeight": "1.6",
                     },
                 ),
-                # Status box
+                # Dashboard sections
+                html.Div(
+                    id="sections-container",
+                    children=[],
+                ),
+                # Status box and Load summary - moved to bottom
                 html.Div(
                     id="status-box",
                     children="Loading chart data...",
@@ -688,6 +721,7 @@ app.layout = html.Div(
                         "border": "1px solid #93c5fd",
                         "padding": "12px 14px",
                         "borderRadius": "8px",
+                        "marginTop": "32px",
                         "marginBottom": "24px",
                         "fontSize": "0.95rem",
                     },
@@ -714,10 +748,87 @@ app.layout = html.Div(
                     ],
                     style={"marginBottom": "24px"},
                 ),
-                # Dashboard sections
+                # About section
+                build_section_header(
+                    "About",
+                    "Kevin Park"),
                 html.Div(
-                    id="sections-container",
-                    children=[],
+                    [
+                        html.P(
+                            "20 years of experience in housing and mortgage markets, with a focus on mortgage insurance, federal housing policy, and credit risk. "
+                            "Experienced in economic and quantitative modeling, policy and portfolio analysis, and applied research across academic, government, and industry settings.",
+                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                        ),
+                        html.Div(
+                            [
+                                html.Span("Connect: ", style={"fontWeight": "500", "marginRight": "8px"}),
+                                html.A(
+                                    html.I(className="fab fa-linkedin", style={"fontSize": "1.2rem", "color": "#0A66C2"}),
+                                    href="https://www.linkedin.com/in/kevinapark/",
+                                    target="_blank",
+                                    rel="noopener noreferrer",
+                                    style={"marginRight": "12px", "textDecoration": "none"},
+                                    title="LinkedIn"
+                                ),
+                                html.A(
+                                    html.I(className="fas fa-graduation-cap", style={"fontSize": "1.2rem", "color": "#4285F4"}),
+                                    href="https://scholar.google.com/citations?user=4mUgOuMAAAAJ&hl=en",
+                                    target="_blank",
+                                    rel="noopener noreferrer",
+                                    style={"marginRight": "12px", "textDecoration": "none"},
+                                    title="Google Scholar"
+                                ),
+                                html.A(
+                                    html.I(className="fas fa-envelope", style={"fontSize": "1.2rem", "color": "#EA4335"}),
+                                    href="mailto:kevinapark@gmail.com",
+                                    style={"textDecoration": "none"},
+                                    title="Email"
+                                ),
+                            ],
+                            style={"display": "flex", "alignItems": "center"}
+                        ),
+                    ],
+                    style={
+                        "backgroundColor": "#f8fafc",
+                        "border": "1px solid #e2e8f0",
+                        "padding": "16px",
+                        "borderRadius": "8px",
+                        "marginBottom": "24px",
+                    },
+                ),
+                # Data Sources section
+                build_section_header(
+                    "Data Sources",
+                    "Information about the data used in this dashboard.",
+                ),
+                html.Div(
+                    [
+                        html.H4("Capital Ratios", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
+                        html.P(
+                            "Capital ratio data is sourced from FHA Actuarial Reviews, which provide annual independent assessments of the Mutual Mortgage Insurance Fund. "
+                            "The capital ratio represents the economic net worth of the Fund relative to insurance-in-force.",
+                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                        ),
+                        html.H4("Claim Rates", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
+                        html.P(
+                            "Cumulative claim rate data shows the proportion of mortgages in each cohort that resulted in insurance claims. "
+                            "Observed rates are based on historical claim experience, while forecasted rates are projections based on actuarial models.",
+                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                        ),
+                        html.H4("Credit Subsidy Rates", style={"marginTop": "0", "marginBottom": "8px", "color": "#1e293b"}),
+                        html.P(
+                            "Credit subsidy rates reflect the budgetary cost of the FHA loan guarantee program and are reported annually in the Budget of the U.S. Government. "
+                            "These rates are based on the long-term net cost of making or guaranteeing loans.",
+                            style={"marginBottom": "0", "lineHeight": "1.6"},
+                        ),
+                    ],
+                    style={
+                        "backgroundColor": "#f8fafc",
+                        "border": "1px solid #e2e8f0",
+                        "padding": "16px",
+                        "borderRadius": "8px",
+                        "marginBottom": "24px",
+                    },
                 ),
                 dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
             ],

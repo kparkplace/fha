@@ -455,8 +455,8 @@ def build_dashboard_sections() -> html.Div:
                 html.Div(
                     [
                         build_chart_card(
-                            "Capital Ratios by Source",
-                            "Capital ratio and unamortized capital ratio by source.",
+                            "Capital Ratio",
+                            "Economic net worth as a share of insurance-in-force.",
                             build_capital_ratio_figure(capratio_df),
                         ),
                     ],
@@ -465,8 +465,8 @@ def build_dashboard_sections() -> html.Div:
                 html.Div(
                     [
                         build_chart_card(
-                            "Economic Value",
-                            "The current market value of the fund's assets and liabilities, expressed in " + adjusted_y_axis_title + ".",
+                            "Economic Net Worth",
+                            "Sum of capital resources and net present value of cash flows.",
                             build_adjusted_figure(
                                 capratio_df,
                                 "econ_value_in_latest_dollars",
@@ -475,8 +475,8 @@ def build_dashboard_sections() -> html.Div:
                             ),
                         ),
                         build_chart_card(
-                            "Capital Resources",
-                            "Net worth of the fund (reserves and balances), expressed in " + adjusted_y_axis_title + ".",
+                            "Existing Capital Resources",
+                            " ",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cap_resources_in_latest_dollars",
@@ -485,8 +485,8 @@ def build_dashboard_sections() -> html.Div:
                             ),
                         ),
                         build_chart_card(
-                            "Cashflow NPV",
-                            "Net present value of expected future premium revenue minus claim losses, expressed in " + adjusted_y_axis_title + ".",
+                            "Cashflows",
+                            "Net present value of expected premium revenue minus claim losses on existing books of business.",
                             build_adjusted_figure(
                                 capratio_df,
                                 "cashflow_npv_in_latest_dollars",

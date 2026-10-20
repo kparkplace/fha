@@ -1,6 +1,6 @@
 
 #%%
-from plotnine import ggplot, aes, geom_line, geom_hline, theme_classic, labs, theme_minimal
+from plotnine import ggplot, aes, geom_line, geom_hline, theme_classic, labs, theme_minimal, element_blank, theme
 import pandas as pd
 
 from pathlib import Path
@@ -27,7 +27,10 @@ p = (ggplot(m, aes('year', 'value', color='source', linetype='metric'))
      + geom_hline(aes(yintercept=0), linetype='dashed')
      + geom_line(size=1)
      + theme_classic()
-     + labs(x='Year', y='Percent', title='Capital Ratios by Source', caption='source: combined_df')
+     + labs(x='Year', y='Percent')
+     + theme(
+         legend_title=element_blank(),
+     )
 )
 p
 # %%
@@ -65,6 +68,9 @@ if "econ_value_in_latest_dollars" in available:
             x="Fiscal Year",
         )
         + theme_minimal()
+        + theme(
+            legend_title=element_blank(),
+        )
     )
 
 p_adj_econ_value

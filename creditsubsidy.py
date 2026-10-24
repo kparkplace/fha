@@ -1,101 +1,89 @@
-﻿
 from __future__ import annotations
 
 from pathlib import Path
 
 import pandas as pd
+import plotly.graph_objects as go
 
-#%%
+
 REPO_ROOT = Path(__file__).resolve().parent
 DATA_PATH = REPO_ROOT / "Data" / "creditsubsidy.parquet"
 
-#%%
+
 def load_credit_subsidy_data(path: str | Path | None = None) -> pd.DataFrame:
     data_path = Path(path) if path is not None else DATA_PATH
     if not data_path.is_absolute():
         data_path = REPO_ROOT / data_path
-    df = pd.read_parquet(data_path)
-    df = df.copy()
+    df = pd.read_parquet(data_path).copy()
+
     df["fiscal_year"] = df["fiscal_year"].astype(str).str.replace(r" \(P\)$", "", regex=True)
     df["original_subsidy_rate"] = pd.to_numeric(df["original_subsidy_rate"], errors="coerce")
     df["current_reestimated_rate"] = pd.to_numeric(df["current_reestimated_rate"], errors="coerce")
-    df["fiscal_year_sort"] = df["fiscal_year"].str.replace(r" \(P\)$", "", regex=True)
-    df["fiscal_year_sort"] = pd.to_numeric(df["fiscal_year_sort"], errors="coerce")
+    df["fiscal_year_sort"] = pd.to_numeric(df["fiscal_year"], errors="coerce")
     df = df.sort_values("fiscal_year_sort").drop_duplicates(subset=["fiscal_year"], keep="first").reset_index(drop=True)
     return df.drop(columns=["fiscal_year_sort"])
 
-#%%
-combined_df = load_credit_subsidy_data()
 
-#%%
-plot_df = combined_df.copy()
-plot_df["fiscal_year"] = plot_df["fiscal_year"].astype(str).str.replace(r" \(P\)$", "", regex=True)
-plot_df["fiscal_year_sort"] = pd.to_numeric(plot_df["fiscal_year"], errors="coerce")
-plot_df = plot_df.sort_values("fiscal_year_sort").copy()
-plot_df = plot_df[plot_df["current_reestimated_rate"].notnull()].reset_index(drop=True)
-plot_df["fy_str"] = plot_df["fiscal_year"].astype(str)
-plot_df["_x"] = plot_df.index.astype(float)
-plot_df["estimate_type"] = "current"
+def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figure | None:
+    if creditsubsidy_df is None or creditsubsidy_df.empty:
+        return None
 
-marks_df = plot_df[plot_df["original_subsidy_rate"].notnull()].copy()
-marks_df["estimate_type"] = "original"
-marks_df["_x_min"] = marks_df["_x"] - 0.2
-marks_df["_x_max"] = marks_df["_x"] + 0.2
+    plot_df = creditsubsidy_df.copy()
+    plot_df["fiscal_year"] = plot_df["fiscal_year"].map(
+        lambda value: str(value).strip() if pd.notna(value) and str(value).strip() else None
+    )
+    plot_df = plot_df.dropna(subset=["fiscal_year"]).copy()
+    plot_df["fiscal_year_sort"] = pd.to_numeric(
+        plot_df["fiscal_year"].str.replace(r" \(P\)$", "", regex=True),
+        errors="coerce",
+    )
+    plot_df["current_reestimated_rate"] = pd.to_numeric(plot_df["current_reestimated_rate"], errors="coerce")
+    plot_df["original_subsidy_rate"] = pd.to_numeric(plot_df["original_subsidy_rate"], errors="coerce")
+    plot_df = plot_df.sort_values("fiscal_year_sort")
+    plot_df = plot_df.dropna(subset=["current_reestimated_rate"])
+    if plot_df.empty:
+        return None
 
-#%%
-try:
-    from plotnine import (
-        aes,
-        element_blank,
-        element_text,
-        geom_col,
-        geom_segment,
-        ggplot,
-        labs,
-        scale_color_manual,
-        scale_fill_manual,
-        scale_x_continuous,
-        theme,
-        theme_classic,
+    fig = go.Figure()
+    fig.add_bar(
+        x=[str(value) for value in plot_df["fiscal_year"].tolist()],
+        y=plot_df["current_reestimated_rate"].tolist(),
+        name="Current Estimate",
+        marker_color="#4c72b0",
+        hovertemplate="FY=%{x}<br>Current=%{y:,.2f}%<extra></extra>",
     )
 
-    combined_plot = (
-        ggplot(plot_df, aes(x="_x", y="current_reestimated_rate"))
-        + geom_col(aes(fill="estimate_type"), width=0.8)
-        + geom_segment(
-            data=marks_df,
-            mapping=aes(
-                x="_x_min",
-                xend="_x_max",
-                y="original_subsidy_rate",
-                yend="original_subsidy_rate",
-                color="estimate_type",
-            ),
-            size=1.25,
-            show_legend=True,
+    original_mask = plot_df["original_subsidy_rate"].notna()
+    if original_mask.any():
+        fig.add_scatter(
+            x=[str(value) for value in plot_df.loc[original_mask, "fiscal_year"].tolist()],
+            y=plot_df.loc[original_mask, "original_subsidy_rate"].tolist(),
+            mode="markers",
+            name="Original Estimate",
+            marker={"color": "#93c5fd", "size": 8, "symbol": "circle"},
+            hovertemplate="FY=%{x}<br>Original=%{y:,.2f}%<extra></extra>",
         )
-        + scale_fill_manual(
-            values={"current": "#4c72b0", "original": "#add8e6"},
-            labels={"current": "Current Estimate", "original": "Original Estimate"},
-        )
-        + scale_color_manual(
-            values={"current": "#4c72b0", "original": "#add8e6"},
-            labels={"current": "Current Estimate", "original": "Original Estimate"},
-        )
-        + scale_x_continuous(breaks=plot_df["_x"].tolist(), labels=plot_df["fy_str"].tolist())
-        + labs(x="Book of Business", y="Credit Subsidy Rate (%)", caption="Source: Office of Management and Budget")
-        + theme_classic()
-        + theme(
-            axis_text_x=element_text(rotation=90, hjust=1),
-            legend_position="bottom",
-            legend_title=element_blank(),
-        )
-    )
-except Exception:
-    combined_plot = None
 
-#%%
+    fig.update_layout(
+        title={"text": "", "x": 0.03},
+        height=420,
+        template="plotly_white",
+        margin={"l": 50, "r": 20, "t": 60, "b": 50},
+        legend={
+            "orientation": "h",
+            "yanchor": "top",
+            "y": -0.2,
+            "xanchor": "left",
+            "x": 0,
+        },
+    )
+    fig.update_xaxes(title_text="Book of Business", tickangle=90)
+    fig.update_yaxes(title_text="Percent")
+    fig.add_hline(y=0, line_dash="solid", line_color="#374151", line_width=1.25)
+    return fig
+
+
 if __name__ == "__main__":
-    print(combined_df.head().to_string(index=False))
-    if combined_plot is not None:
-        print(combined_plot)
+    creditsubsidy_df = load_credit_subsidy_data()
+    creditsubsidy_fig = build_creditsubsidy_figure(creditsubsidy_df)
+

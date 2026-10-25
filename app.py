@@ -98,6 +98,33 @@ def build_section_header(title: str, description: str | None = None) -> html.Div
     )
 
 
+def build_data_sources(sources_content: list | str) -> html.Details:
+    """Build a collapsible Data Sources section with bullet points."""
+    # Convert single items to list
+    if not isinstance(sources_content, list):
+        sources_content = [sources_content]
+    
+    # Wrap items in list items if they're not already
+    list_items = [
+        html.Li(item) if not isinstance(item, html.Li) else item
+        for item in sources_content
+    ]
+    
+    return html.Details(
+        [
+            html.Summary(
+                "Data Sources",
+                style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "0.95rem", "marginBottom": "8px"}
+            ),
+            html.Ul(
+                list_items,
+                style={"lineHeight": "1.6", "fontSize": "0.9rem", "color": "#64748b", "marginTop": "8px", "marginBottom": "0"}
+            ),
+        ],
+        style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f8fafc", "borderRadius": "8px", "border": "1px solid #e2e8f0"}
+    )
+
+
 def build_chart_card(title: str, description: str, figure: go.Figure | None, *, featured: bool = False) -> html.Div:
     """Build a chart card with title, description, and optional figure."""
     card_style = {
@@ -175,6 +202,29 @@ def build_dashboard_sections() -> html.Div:
                     endorsements_subtitle,
                     endorsements_fig,
                 ),
+                build_data_sources([
+                    [
+                        "1979 Statistical Yearbook, US Department of Housing and Urban Development. Available at ",
+                        html.A("https://www.huduser.gov/portal/sites/default/files/publications/pdf/HUD-4033.pdf", 
+                               href="https://www.huduser.gov/portal/sites/default/files/publications/pdf/HUD-4033.pdf",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "U.S. Housing Market Conditions Historical Data, US Department of Housing and Urban Development. Available via Wayback Machine at ",
+                        html.A("https://web.archive.org/web/20250331171045/https://www.huduser.gov/periodicals/ushmc/winter2001/histdat16.htm", 
+                               href="https://web.archive.org/web/20250331171045/https://www.huduser.gov/periodicals/ushmc/winter2001/histdat16.htm",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "FHA-Insured Single-Family Mortgage Originations and Market Share Reports. Available at ",
+                        html.A("https://www.hud.gov/hud-partners/single-family-mortgage-market-share", 
+                               href="https://www.hud.gov/hud-partners/single-family-mortgage-market-share",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                ]),
             ],
             style={"marginBottom": "24px"},
         )
@@ -202,6 +252,24 @@ def build_dashboard_sections() -> html.Div:
                     "Based on 2006-07 loan performance.",
                     build_creditrisk_figure(creditrisk_df),
                 ),
+                build_data_sources([
+                    [
+                        "Morris A. Davis, William D. Larson, Stephen D. Oliner, Benjamin R. Smith. 2023. "
+                        "\"A Quarter Century of Mortgage Risk.\" Federal Housing Finance Agency, Working Paper 19-02. "
+                        "Data supplement available at ",
+                        html.A("https://www.fhfa.gov/research/papers/wp1902", 
+                               href="https://www.fhfa.gov/research/papers/wp1902",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "American Enterprise Institute, National Mortgage Default Rate. Available at ",
+                        html.A("https://www.aei.org/housing/mortgage-risk-index/",
+                               href="https://www.aei.org/housing/mortgage-risk-index/",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                ]),
             ],
             style={"marginBottom": "24px"},
         )
@@ -238,6 +306,9 @@ def build_dashboard_sections() -> html.Div:
                         "alignItems": "start",
                     },
                 ),
+                build_data_sources(
+                    "FHA Annual Reports to Congress and independent actuarial reviews are available at https://www.hud.gov/stat/sfh/mortgage-insurance-fund. Historical and projected terminations are found in Appendix G of recent actuarial reviews."
+                ),
             ],
             style={"marginBottom": "24px"},
         )
@@ -261,6 +332,15 @@ def build_dashboard_sections() -> html.Div:
                         "re-estimates reflect updated expectations as the cohort ages.",
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
+                    build_data_sources([
+                        [
+                            "Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement ",
+                            html.A("https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                   href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                   target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                            " released with the President's Budget."
+                        ],
+                    ]),
                 ],
                 style={"marginBottom": "24px"},
             )
@@ -328,6 +408,19 @@ def build_dashboard_sections() -> html.Div:
                         "alignItems": "start",
                     },
                 ),
+                build_data_sources([
+                    [
+                        "FHA Annual Reports to Congress and independent actuarial reviews are available at ",
+                        html.A("https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
+                               href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        ". Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from ",
+                        html.A("FRED, Federal Reserve Bank of St. Louis",
+                               href="https://fred.stlouisfed.org/",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                ]),
             ],
             style={"marginBottom": "24px"},
         )
@@ -445,12 +538,14 @@ app.layout = html.Div(
                     [
                         html.P(
                             "The Federal Housing Administration (FHA) was created in 1934 'to encourage improvement in housing standards and conditions, "
-                            "to provide a system of mutual mortgage insurance, and for other purposes.' Since then it has insured over 40 million home loans "
+                            "to provide a system of mutual mortgage insurance, and for other purposes.' Since then it has insured over 55 million home loans "
                             "and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund.",
                             style={"marginBottom": "12px"},
                         ),
                         html.P(
-                            "This website provides an overview of the financial health of forward",
+                            "This website provides an overview of the financial health of single-family forward loans in the MMI Fund."
+                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
+                            "The website is not affiliated with FHA or any government agency.",
                             style={"display": "inline"}
                         ),
                         html.Details(
@@ -465,16 +560,7 @@ app.layout = html.Div(
                                 ),
                             ],
                             style={"display": "inline"}
-                        ),
-                        html.P(
-                            " loans in the MMI Fund.",
-                            style={"display": "inline"}
-                        ),
-                        html.P(
-                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
-                            "The website is not affiliated with FHA or any government agency.",
-                            style={"color": "#64748b", "fontSize": "0.9rem"}
-                        ),
+                        )
                     ],
                 ),
                 # Dashboard sections
@@ -558,38 +644,6 @@ app.layout = html.Div(
                                 ),
                             ],
                             style={"display": "flex", "alignItems": "center"}
-                        ),
-                    ],
-                    style={"marginBottom": "24px"}
-                ),
-                # Data Sources section
-                html.Details(
-                    [
-                        html.Summary(
-                            "Data Sources",
-                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "1.1rem", "marginBottom": "12px"}
-                        ),
-                        html.Div(
-                            [
-                                html.P("FHA Annual Reports to Congress and independent actuarial reviews are available at ", style={"display": "inline"}),
-                                html.A(
-                                    "https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
-                                    href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
-                                    target="_blank",
-                                    rel="noopener noreferrer",
-                                    style={"color": "#3b82f6", "textDecoration": "underline"}
-                                ),
-                                html.P(". Historical and projected terminations are found in Appendix G of recent actuarial reviews. Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement ", style={"display": "inline"}),
-                                html.A(
-                                    "https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                                    href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                                    target="_blank",
-                                    rel="noopener noreferrer",
-                                    style={"color": "#3b82f6", "textDecoration": "underline"}
-                                ),
-                                html.P(" released with the President's Budget. Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from FRED, Federal Reserve Bank of St. Louis.", style={"display": "inline"}),
-                            ],
-                            style={"lineHeight": "1.6"},
                         ),
                     ],
                     style={"marginBottom": "24px"}

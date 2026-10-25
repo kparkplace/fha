@@ -15,12 +15,14 @@ from capratio import (
 from claimsrate import build_claims_line_figure, build_claims_stack_figure, load_claims_data
 from creditrisk import build_creditrisk_figure, load_creditrisk_data
 from creditsubsidy import build_creditsubsidy_figure, load_credit_subsidy_data
+from endorsements import build_endorsements_figure, load_endorsements_data
 
 
 REPO_ROOT = Path(__file__).resolve().parent
 CAPRATIO_PATH = REPO_ROOT / "Data" / "capratio.parquet"
 CLAIMS_PATH = REPO_ROOT / "Data" / "cum_claims.parquet"
 CREDITRISK_PATH = REPO_ROOT / "Data" / "creditrisk.parquet"
+ENDORSEMENTS_PATH = REPO_ROOT / "Data" / "endorsements.parquet"
 
 
 DATA_CACHE = {
@@ -28,6 +30,7 @@ DATA_CACHE = {
     "claims_df": None,
     "creditrisk_df": None,
     "creditsubsidy_df": None,
+    "endorsements_df": None,
     "loaded_at": None,
     "load_error": None,
     "creditsubsidy_error": None,
@@ -42,6 +45,7 @@ def ensure_data_loaded() -> None:
         DATA_CACHE["capratio_df"] is not None
         and DATA_CACHE["claims_df"] is not None
         and DATA_CACHE["creditrisk_df"] is not None
+        and DATA_CACHE["endorsements_df"] is not None
         and (DATA_CACHE["creditsubsidy_df"] is not None or DATA_CACHE["creditsubsidy_error"] is not None)
     ):
         return
@@ -58,13 +62,19 @@ def ensure_data_loaded() -> None:
         DATA_CACHE["load_error"] = f"Missing parquet input: {CREDITRISK_PATH}"
         return
 
+    if not ENDORSEMENTS_PATH.exists():
+        DATA_CACHE["load_error"] = f"Missing parquet input: {ENDORSEMENTS_PATH}"
+        return
+
     capratio_df = load_capratio_data(CAPRATIO_PATH)
     claims_df = load_claims_data(CLAIMS_PATH)
     creditrisk_df = load_creditrisk_data(CREDITRISK_PATH)
+    endorsements_df = load_endorsements_data(ENDORSEMENTS_PATH)
 
     DATA_CACHE["capratio_df"] = capratio_df
     DATA_CACHE["claims_df"] = claims_df
     DATA_CACHE["creditrisk_df"] = creditrisk_df
+    DATA_CACHE["endorsements_df"] = endorsements_df
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
     if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
@@ -133,8 +143,9 @@ def build_dashboard_sections() -> html.Div:
     capratio_df = DATA_CACHE["capratio_df"]
     claims_df = DATA_CACHE["claims_df"]
     creditrisk_df = DATA_CACHE["creditrisk_df"]
+    endorsements_df = DATA_CACHE["endorsements_df"]
     creditsubsidy_df = DATA_CACHE["creditsubsidy_df"]
-    if capratio_df is None or claims_df is None or creditrisk_df is None:
+    if capratio_df is None or claims_df is None or creditrisk_df is None or endorsements_df is None:
         return html.Div()
 
     adjusted_y_axis_title = get_adjusted_y_axis_title()
@@ -142,7 +153,102 @@ def build_dashboard_sections() -> html.Div:
 
     sections = []
 
-    # MMI Fund Capital Section
+    # 1) Endorsements Section
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "FHA Endorsements",
+                    "Historical data on the number of FHA-endorsed single-family mortgages from 1934 to present.",
+                ),
+                build_chart_card(
+                    "FHA Endorsements Over Time",
+                    "Annual FHA endorsement counts by data source.",
+                    build_endorsements_figure(endorsements_df),
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
+
+    # 2) Mortgage Default Risk Section
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "Mortgage Default Risk",
+                    "Alternative model estimates of FHA default risk over time.",
+                ),
+                build_chart_card(
+                    "FHA Mortgage Default Risk",
+                    "Annual estimates from Davis et al. (2023) and monthly estimates from the American Enterprise Institute.",
+                    build_creditrisk_figure(creditrisk_df),
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
+
+    # 3) Cumulative Claim Rates Section
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "Cumulative Claim Rates",
+                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business "
+                    "over the previous 30 years and project their future performance. "
+                    "By compiling historical actuarial reviews, the data below show 50 years of "
+                    "claim terminations as a share of insured loans.",
+                ),
+                html.Div(
+                    [
+                        build_chart_card(
+                            "Observed Cumulative Claim Rates",
+                            "Cumulative claims by cohort and years since origination.",
+                            build_claims_line_figure(claims_df),
+                        ),
+                        build_chart_card(
+                            "Observed and Forecasted Cumulative Claim Rates",
+                            "Cumulative claims by cohort with projections for future years.",
+                            build_claims_stack_figure(claims_df),
+                        ),
+                    ],
+                    style={
+                        "display": "grid",
+                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
+                        "gap": "14px",
+                        "alignItems": "start",
+                    },
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
+
+    # 4) Credit Subsidy Rates Section
+    if creditsubsidy_df is not None:
+        sections.append(
+            html.Div(
+                [
+                    build_section_header(
+                        "Credit Subsidy by Cohort",
+                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
+                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
+                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government. "
+                        "These estimates are revised every year as part of the federal budget process.",
+                    ),
+                    build_chart_card(
+                        "Credit Subsidy Rates",
+                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
+                        "re-estimates reflect updated expectations as the cohort ages.",
+                        build_creditsubsidy_figure(creditsubsidy_df),
+                    ),
+                ],
+                style={"marginBottom": "24px"},
+            )
+        )
+
+    # 5) MMI Fund Capital Section
     sections.append(
         html.Div(
             [
@@ -209,88 +315,13 @@ def build_dashboard_sections() -> html.Div:
         )
     )
 
-    # Cumulative Claim Rates Section
-    sections.append(
-        html.Div(
-            [
-                build_section_header(
-                    "Cumulative Claim Rates",
-                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business "
-                    "over the previous 30 years and project their future performance. "
-                    "By compiling historical actuarial reviews, the data below show 50 years of "
-                    "claim terminations as a share of insured loans.",
-                ),
-                html.Div(
-                    [
-                        build_chart_card(
-                            "Observed Cumulative Claim Rates",
-                            "Cumulative claims by cohort and years since origination.",
-                            build_claims_line_figure(claims_df),
-                        ),
-                        build_chart_card(
-                            "Observed and Forecasted Cumulative Claim Rates",
-                            "Cumulative claims by cohort with projections for future years.",
-                            build_claims_stack_figure(claims_df),
-                        ),
-                    ],
-                    style={
-                        "display": "grid",
-                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
-                        "gap": "14px",
-                        "alignItems": "start",
-                    },
-                ),
-            ],
-            style={"marginBottom": "24px"},
-        )
-    )
-
-    # Credit Subsidy Rates Section
-    if creditsubsidy_df is not None:
-        sections.append(
-            html.Div(
-                [
-                    build_section_header(
-                        "Credit Subsidy by Cohort",
-                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
-                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
-                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government. "
-                        "These estimates are revised every year as part of the federal budget process.",
-                    ),
-                    build_chart_card(
-                        "Credit Subsidy Rates",
-                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
-                        "re-estimates reflect updated expectations as the cohort ages.",
-                        build_creditsubsidy_figure(creditsubsidy_df),
-                    ),
-                ],
-                style={"marginBottom": "24px"},
-            )
-        )
-
-    sections.append(
-        html.Div(
-            [
-                build_section_header(
-                    "Mortgage Default Risk",
-                    "Alternative model estimates of FHA default risk over time.",
-                ),
-                build_chart_card(
-                    "FHA Mortgage Default Risk",
-                    "Annual estimates from Davis et al. (2023) and monthly estimates from the American Enterprise Institute.",
-                    build_creditrisk_figure(creditrisk_df),
-                ),
-            ],
-            style={"marginBottom": "24px"},
-        )
-    )
-
     return html.Div(sections)
 
 
 def render_stats_items() -> list[html.Li]:
     if DATA_CACHE["load_error"]:
         return [
+            html.Li("Endorsements rows: 0"),
             html.Li("Capratio rows: 0"),
             html.Li("Claims rows: 0"),
             html.Li("Credit risk rows: 0"),
@@ -300,12 +331,14 @@ def render_stats_items() -> list[html.Li]:
 
     loaded_at = DATA_CACHE["loaded_at"]
     loaded_at_text = loaded_at.strftime("%Y-%m-%d %H:%M:%S UTC") if loaded_at else "Loading..."
+    endorsements_rows = len(DATA_CACHE["endorsements_df"]) if DATA_CACHE["endorsements_df"] is not None else 0
     capratio_rows = len(DATA_CACHE["capratio_df"]) if DATA_CACHE["capratio_df"] is not None else 0
     claims_rows = len(DATA_CACHE["claims_df"]) if DATA_CACHE["claims_df"] is not None else 0
     creditrisk_rows = len(DATA_CACHE["creditrisk_df"]) if DATA_CACHE["creditrisk_df"] is not None else 0
     creditsubsidy_rows = len(DATA_CACHE["creditsubsidy_df"]) if DATA_CACHE["creditsubsidy_df"] is not None else 0
-    chart_count = 8 if DATA_CACHE["creditsubsidy_df"] is not None else 7
+    chart_count = 9 if DATA_CACHE["creditsubsidy_df"] is not None else 8
     return [
+        html.Li(f"Endorsements rows: {endorsements_rows:,}"),
         html.Li(f"Capratio rows: {capratio_rows:,}"),
         html.Li(f"Claims rows: {claims_rows:,}"),
         html.Li(f"Credit risk rows: {creditrisk_rows:,}"),

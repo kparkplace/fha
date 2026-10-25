@@ -10,6 +10,7 @@ mask = (df_wp1902["Statistic"] == "Average Baseline Stressed Default Rate") & \
 df_fhfa = df_wp1902[mask][["Year", "FHA"]].rename(columns={"FHA": "Risk"}).copy()
 df_fhfa['Source']='Davis et al. (2023)'
 df_fhfa['Date'] = pd.to_datetime(df_fhfa['Year'].astype(str) + '-12-31')
+df_fhfa['Risk'] = df_fhfa['Risk']*100
 
 #%% AEI
 nmdr_file = DATA_DIR / "RAW" /"NMDR for Federal Housing Administration, All Loans.csv"
@@ -30,7 +31,6 @@ if df_nmdr.shape[0] == 1:
         "Date": date_range,
         "Risk": values
     })
-df_aei['Risk']=df_aei['Risk']/100
 df_aei['Source'] = 'American Enterprise Institute'
 
 #%% Urban
@@ -42,7 +42,6 @@ df_urban = pd.read_excel(urban_file, sheet_name="Gov't", skiprows=3)
 df_urban = df_urban[["Year", "Total\nRisk"]].rename(columns={"Total\nRisk": "Risk"}).copy()
 df_urban['Source'] = 'Urban Institute'
 df_urban['Date'] = pd.to_datetime(df_urban['Year'])
-df_urban['Risk'] = df_urban['Risk'] / 100
 
 # %%
 df_risk = pd.concat([df_fhfa[['Date', 'Risk', 'Source']],

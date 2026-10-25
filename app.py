@@ -13,17 +13,20 @@ from capratio import (
     load_capratio_data,
 )
 from claimsrate import build_claims_line_figure, build_claims_stack_figure, load_claims_data
+from creditrisk import build_creditrisk_figure, load_creditrisk_data
 from creditsubsidy import build_creditsubsidy_figure, load_credit_subsidy_data
 
 
 REPO_ROOT = Path(__file__).resolve().parent
 CAPRATIO_PATH = REPO_ROOT / "Data" / "capratio.parquet"
 CLAIMS_PATH = REPO_ROOT / "Data" / "cum_claims.parquet"
+CREDITRISK_PATH = REPO_ROOT / "Data" / "creditrisk.parquet"
 
 
 DATA_CACHE = {
     "capratio_df": None,
     "claims_df": None,
+    "creditrisk_df": None,
     "creditsubsidy_df": None,
     "loaded_at": None,
     "load_error": None,
@@ -38,6 +41,7 @@ def ensure_data_loaded() -> None:
     if (
         DATA_CACHE["capratio_df"] is not None
         and DATA_CACHE["claims_df"] is not None
+        and DATA_CACHE["creditrisk_df"] is not None
         and (DATA_CACHE["creditsubsidy_df"] is not None or DATA_CACHE["creditsubsidy_error"] is not None)
     ):
         return
@@ -50,11 +54,17 @@ def ensure_data_loaded() -> None:
         DATA_CACHE["load_error"] = f"Missing parquet input: {CLAIMS_PATH}"
         return
 
+    if not CREDITRISK_PATH.exists():
+        DATA_CACHE["load_error"] = f"Missing parquet input: {CREDITRISK_PATH}"
+        return
+
     capratio_df = load_capratio_data(CAPRATIO_PATH)
     claims_df = load_claims_data(CLAIMS_PATH)
+    creditrisk_df = load_creditrisk_data(CREDITRISK_PATH)
 
     DATA_CACHE["capratio_df"] = capratio_df
     DATA_CACHE["claims_df"] = claims_df
+    DATA_CACHE["creditrisk_df"] = creditrisk_df
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
     if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
@@ -122,8 +132,9 @@ def build_dashboard_sections() -> html.Div:
     """Build all dashboard sections organized by module."""
     capratio_df = DATA_CACHE["capratio_df"]
     claims_df = DATA_CACHE["claims_df"]
+    creditrisk_df = DATA_CACHE["creditrisk_df"]
     creditsubsidy_df = DATA_CACHE["creditsubsidy_df"]
-    if capratio_df is None or claims_df is None:
+    if capratio_df is None or claims_df is None or creditrisk_df is None:
         return html.Div()
 
     adjusted_y_axis_title = get_adjusted_y_axis_title()
@@ -257,6 +268,23 @@ def build_dashboard_sections() -> html.Div:
             )
         )
 
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "Mortgage Default Risk",
+                    "Alternative model estimates of FHA default risk over time.",
+                ),
+                build_chart_card(
+                    "FHA Mortgage Default Risk",
+                    "Annual estimates from Davis et al. (2023) and monthly estimates from the American Enterprise Institute.",
+                    build_creditrisk_figure(creditrisk_df),
+                ),
+            ],
+            style={"marginBottom": "24px"},
+        )
+    )
+
     return html.Div(sections)
 
 
@@ -265,6 +293,7 @@ def render_stats_items() -> list[html.Li]:
         return [
             html.Li("Capratio rows: 0"),
             html.Li("Claims rows: 0"),
+            html.Li("Credit risk rows: 0"),
             html.Li("Credit subsidy rows: 0"),
             html.Li("Loaded at: Failed"),
         ]
@@ -273,11 +302,13 @@ def render_stats_items() -> list[html.Li]:
     loaded_at_text = loaded_at.strftime("%Y-%m-%d %H:%M:%S UTC") if loaded_at else "Loading..."
     capratio_rows = len(DATA_CACHE["capratio_df"]) if DATA_CACHE["capratio_df"] is not None else 0
     claims_rows = len(DATA_CACHE["claims_df"]) if DATA_CACHE["claims_df"] is not None else 0
+    creditrisk_rows = len(DATA_CACHE["creditrisk_df"]) if DATA_CACHE["creditrisk_df"] is not None else 0
     creditsubsidy_rows = len(DATA_CACHE["creditsubsidy_df"]) if DATA_CACHE["creditsubsidy_df"] is not None else 0
-    chart_count = 7 if DATA_CACHE["creditsubsidy_df"] is not None else 6
+    chart_count = 8 if DATA_CACHE["creditsubsidy_df"] is not None else 7
     return [
         html.Li(f"Capratio rows: {capratio_rows:,}"),
         html.Li(f"Claims rows: {claims_rows:,}"),
+        html.Li(f"Credit risk rows: {creditrisk_rows:,}"),
         html.Li(f"Credit subsidy rows: {creditsubsidy_rows:,}"),
         html.Li(f"Charts: {chart_count}"),
         html.Li(

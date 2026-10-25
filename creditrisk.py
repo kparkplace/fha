@@ -53,7 +53,7 @@ def build_creditrisk_figure(creditrisk_df: pd.DataFrame | None) -> go.Figure | N
 
     fig.update_layout(
         title="FHA Mortgage Default Risk",
-        yaxis={"title": "Default Risk"},
+        yaxis={"title": "Default Risk", "range": [20, 40]},
         hovermode="x unified",
         legend={"x": 0.5, "y": -0.15, "xanchor": "center", "yanchor": "top"},
         height=420,

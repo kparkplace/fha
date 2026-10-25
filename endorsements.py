@@ -17,9 +17,10 @@ def load_endorsements_data(path: str | Path | None = None) -> pd.DataFrame:
     return pd.read_parquet(data_path).copy()
 
 
-def build_endorsements_figure(endorsements_df: pd.DataFrame | None) -> go.Figure | None:
+def build_endorsements_figure(endorsements_df: pd.DataFrame | None) -> tuple[go.Figure | None, str]:
+    """Build endorsements figure and return (figure, subtitle_text)."""
     if endorsements_df is None or endorsements_df.empty:
-        return None
+        return None, ""
 
     plot_df = endorsements_df.copy()
     plot_df = plot_df.dropna(subset=["year", "count"]).sort_values(["source", "year"])
@@ -28,6 +29,10 @@ def build_endorsements_figure(endorsements_df: pd.DataFrame | None) -> go.Figure
     max_by_year = plot_df.groupby("year")["count"].max().reset_index()
     total_count = max_by_year["count"].sum()
     max_year = max_by_year["year"].max()
+    
+    # Format as X.X million
+    total_millions = total_count / 1_000_000
+    subtitle = f"{total_millions:.1f} million through {max_year}"
 
     # Color map: capratio-inspired with FHA sources in two shades
     color_map = {
@@ -73,29 +78,15 @@ def build_endorsements_figure(endorsements_df: pd.DataFrame | None) -> go.Figure
             "x": 0,
         },
     )
-    fig.update_xaxes(title_text="Year")
-    fig.update_yaxes(title_text="Number of Endorsements")
+    fig.update_yaxes(title_text="Endorsements")
     fig.add_hline(y=0, line_dash="solid", line_color="#374151", line_width=1.25)
     
-    # Add text annotation in top left corner
-    fig.add_annotation(
-        text=f"{total_count:,} through {max_year}",
-        xref="paper",
-        yref="paper",
-        x=0.02,
-        y=0.98,
-        showarrow=False,
-        font={"size": 12, "color": "#1e293b"},
-        xanchor="left",
-        yanchor="top",
-    )
-    
-    return fig
-
+    return fig, subtitle
 
 
 if __name__ == "__main__":
     endorsements_df = load_endorsements_data()
-    fig = build_endorsements_figure(endorsements_df)
+    fig, subtitle = build_endorsements_figure(endorsements_df)
     if fig is not None:
+        print(f"Subtitle: {subtitle}")
         fig.show()

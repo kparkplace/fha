@@ -154,17 +154,26 @@ def build_dashboard_sections() -> html.Div:
     sections = []
 
     # 1) Endorsements Section
+    endorsements_fig, endorsements_subtitle = build_endorsements_figure(endorsements_df)
     sections.append(
         html.Div(
             [
                 build_section_header(
-                    "FHA Endorsements",
-                    "Historical data on the number of FHA-endorsed single-family mortgages from 1934 to present.",
+                    "Originations",
+                    "The first existing house to be bought with an FHA-insured loan is located at 319 East Howell Ave in Alexandria, VA. "
+                    "The 1940 Census reports Amos E. Herbert owned the house with his wife Elsie and two children. "
+                    "Amos was a railroad accountant born in 1889. The house was reported to be worth $5,000 in 1940. "
+                    "The first house to be built with FHA financing is 30 Hopper Ave in Pompton Plains, NJ. "
+                    "The house was built for Warren H. Newkirk and his wife Lena with a $4,800 mortgage from Prospect Park National Bank. "
+                    "The 1930 Census lists Warren as a department manager at a celluloid company renting a house in nearby Wanaque, NJ for $75 a month. "
+                    "He was born around 1883, making him roughly 51 when he had the house built. "
+                    "The 1940 Census shows the house was worth $9,000. "
+                    "The Newkirks paid off their mortgage when Warren retired in 1948 and received a $400 refund from FHA.",
                 ),
                 build_chart_card(
-                    "FHA Endorsements Over Time",
-                    "Annual FHA endorsement counts by data source.",
-                    build_endorsements_figure(endorsements_df),
+                    "Endorsements by Year",
+                    endorsements_subtitle,
+                    endorsements_fig,
                 ),
             ],
             style={"marginBottom": "24px"},
@@ -176,12 +185,21 @@ def build_dashboard_sections() -> html.Div:
         html.Div(
             [
                 build_section_header(
-                    "Mortgage Default Risk",
-                    "Alternative model estimates of FHA default risk over time.",
+                    "Credit Risk",
+                    "Underwriting quality can be assessed by combining borrower and loan characteristics with historical loan performance. "
+                    "Davis et al. (2023) compute the mortgage default rate on loans originated in 2006 and 2007 by credit score, debt-to-income (DTI) ratio, and loan-to-value (LTV) ratio. "
+                    "Then they estimate the probability of default for each annual cohort based on the composition of borrower and loan characteristics. "
+                    "The American Enterprise Institute's National Mortgage Default Rate metric extends that estimate to the present on a monthly basis. "
+                    "However, the average default probability of FHA-insured loans does not necessarily reflect changes in FHA underwriting. "
+                    "Many lenders apply credit overlays, restricting the risk profile of borrowers beyond FHA's minimum standards. "
+                    "So the number of high-risk FHA borrowers is impacted by the implementation and relaxation of these overlays. "
+                    "At the same time, conventional lenders (e.g., loans acquired by Fannie Mae and Freddie Mac, or held in bank portfolios) compete for lower risk borrowers. "
+                    "The combination of FHA underwriting standards, lender overlays, and conventional market competition determine FHA's average risk. "
+                    "Nevertheless, there is an obvious reduction in default risk among FHA-insured loans during the Great Financial Crisis, and the average risk has remained well below the average of the 1990s.",
                 ),
                 build_chart_card(
-                    "FHA Mortgage Default Risk",
-                    "Annual estimates from Davis et al. (2023) and monthly estimates from the American Enterprise Institute.",
+                    "Estimated Stressed Default Rate",
+                    "Based on 2006-07 loan performance.",
                     build_creditrisk_figure(creditrisk_df),
                 ),
             ],

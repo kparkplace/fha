@@ -624,6 +624,7 @@ app.layout = html.Div(
                                             "Dr. Park in front of the first existing house to be bought with an FHA-insured home loan. "
                                             "The 1940 Census reports Amos and Elsie Herbert owned the house located at 319 East Howell Ave in Alexandria, VA.",
                                             style={
+                                                "width": "180px",
                                                 "fontSize": "0.75rem",
                                                 "color": "#64748b",
                                                 "fontStyle": "italic",

@@ -598,28 +598,6 @@ app.layout = html.Div(
                         "fontSize": "0.95rem",
                     },
                 ),
-                # Summary stats
-                html.Details(
-                    [
-                        html.Summary(
-                            "Load summary",
-                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "marginBottom": "12px"},
-                        ),
-                        html.Ul(
-                            id="summary-stats",
-                            children=render_stats_items(),
-                            style={
-                                "display": "grid",
-                                "gridTemplateColumns": "repeat(auto-fit, minmax(200px, 1fr))",
-                                "gap": "8px",
-                                "listStyle": "none",
-                                "paddingLeft": "0",
-                                "margin": "0",
-                            },
-                        ),
-                    ],
-                    style={"marginBottom": "24px"},
-                ),
                 # About section
                 html.Details(
                     [
@@ -627,11 +605,45 @@ app.layout = html.Div(
                             "About Me",
                             style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "1.1rem", "marginBottom": "12px"}
                         ),
-                        html.P(
-                            "I am an economist specializing in mortgage insurance and housing finance policy. "
-                            "I have a PhD in City and Regional Planning from UNC-Chapel Hill, writing my dissertation on mortgage insurance during the Great Financial Crisis. "
-                            "I worked on FHA's TOTAL Mortgage Scorecard underwriting algorithm from 2015 to 2022 and am currently employed by a private mortgage insurance company.",
-                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                        html.Div(
+                            [
+                                html.Img(
+                                    src="assets/IMG_20250531_125826.jpg",
+                                    style={
+                                        "width": "140px",
+                                        "height": "auto",
+                                        "borderRadius": "8px",
+                                        "marginBottom": "20px",
+                                        "marginRight": "16px",
+                                        "float": "left",
+                                        "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                    }
+                                ),
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Kevin Park is an economist specializing in mortgage insurance and housing finance policy. "
+                                            "He has a PhD in City and Regional Planning from UNC-Chapel Hill, writing his dissertation on mortgage insurance during the Great Financial Crisis. "
+                                            "He led work on FHA's TOTAL Mortgage Scorecard underwriting algorithm from 2015 to 2022 and currently works in the private mortgage insurance industry. ",
+                                            style={"marginBottom": "16px", "lineHeight": "1.6"},
+                                        ),
+                                    ],
+                                    style={"overflow": "hidden"}
+                                )
+                            ],
+                            style={"display": "flex", "flexWrap": "wrap", "alignItems": "flex-start"}
+                        ),
+                        html.Figcaption(
+                            "Dr. Park in front of the first existing house to be bought with an FHA-insured home loan. "
+                            "The 1940 Census reports Amos and Elsie Herbert owned the house located at 319 East Howell Ave in Alexandria, VA. ",
+                            style={
+                                "fontSize": "0.9rem",
+                                "color": "#64748b",
+                                "fontStyle": "italic",
+                                "marginTop": "12px",
+                                "clear": "both",
+                                "textAlign": "center",
+                            }
                         ),
                         html.Div(
                             [
@@ -641,7 +653,7 @@ app.layout = html.Div(
                                     href="https://www.linkedin.com/in/kevinapark/",
                                     target="_blank",
                                     rel="noopener noreferrer",
-                                    style={"marginRight": "12px", "textDecoration": "none"},
+                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"}
                                     title="LinkedIn"
                                 ),
                                 html.A(
@@ -663,6 +675,29 @@ app.layout = html.Div(
                         ),
                     ],
                     style={"marginBottom": "24px"}
+                ),
+                # Summary stats
+                html.Details(
+                    [
+                        html.Summary(
+                            "Load summary",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "marginBottom": "12px", "fontSize": "0.9rem"},
+                        ),
+                        html.Ul(
+                            id="summary-stats",
+                            children=render_stats_items(),
+                            style={
+                                "display": "grid",
+                                "gridTemplateColumns": "repeat(auto-fit, minmax(200px, 1fr))",
+                                "gap": "8px",
+                                "listStyle": "none",
+                                "paddingLeft": "0",
+                                "margin": "0",
+                                "fontSize": "0.85rem",
+                            },
+                        ),
+                    ],
+                    style={"marginBottom": "24px"},
                 ),
                 dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
             ],

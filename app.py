@@ -306,9 +306,15 @@ def build_dashboard_sections() -> html.Div:
                         "alignItems": "start",
                     },
                 ),
-                build_data_sources(
-                    "FHA Annual Reports to Congress and independent actuarial reviews are available at https://www.hud.gov/stat/sfh/mortgage-insurance-fund. Historical and projected terminations are found in Appendix G of recent actuarial reviews."
-                ),
+                build_data_sources([
+                    [
+                        "FHA annual actuarial reviews. Available at ",
+                        html.A("https://www.hud.gov/stat/sfh/mortgage-insurance-fund", 
+                               href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        ". Each actuarial review provides the observed and projected performance by cohort for the previous 30 years, reported in an appendix."
+                    ]
+                ]),
             ],
             style={"marginBottom": "24px"},
         )
@@ -333,13 +339,11 @@ def build_dashboard_sections() -> html.Div:
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                     build_data_sources([
-                        [
-                            "Credit subsidy rates are reported in Table 2 and Table 8 of the Federal Credit Supplement ",
-                            html.A("https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                                   href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                                   target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
-                            " released with the President's Budget."
-                        ],
+                        "Federal Credit Supplement. Table 2 and Table 8. Office of Management and Budget. Available at ",
+                        html.A("https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                               href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
                     ]),
                 ],
                 style={"marginBottom": "24px"},
@@ -410,7 +414,7 @@ def build_dashboard_sections() -> html.Div:
                 ),
                 build_data_sources([
                     [
-                        "FHA Annual Reports to Congress and independent actuarial reviews are available at ",
+                        "FHA Annual Reports to Congress and independent actuarial reviews. Available at ",
                         html.A("https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
                                href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
                                target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),

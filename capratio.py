@@ -33,7 +33,7 @@ def load_capratio_data(path: str | Path | None = None) -> pd.DataFrame:
 
 
 def get_adjusted_y_axis_title() -> str:
-    return f"{datetime.now(timezone.utc).year} Dollars, Millions"
+    return f"{datetime.now(timezone.utc).year} Dollars, Billions"
 
 
 def get_adjusted_y_range(capratio_df: pd.DataFrame) -> list[float] | None:

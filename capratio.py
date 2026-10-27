@@ -118,8 +118,23 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
         y="value",
         color="source",
         line_dash="metric",
+        line_dash_map={
+            "Amortized IIF": "solid",
+            "Unamortized IIF": "dash",
+        }
     )
-    fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<br>Source=%{fullData.name}<extra></extra>")
+    
+    # Hide metric traces from legend, keep only source
+    for trace in fig.data:
+        trace.showlegend = True
+        # Extract source name (it's the trace name)
+        # Plotly creates names like "source_value, metric_value"
+        # We want to keep only the source part
+        parts = trace.name.split(", ")
+        if len(parts) == 2:
+            trace.name = parts[0]
+    
+    fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<extra></extra>")
     return _apply_figure_layout(fig, y_axis_title="Percent", height=560)
 
 

@@ -98,7 +98,7 @@ def build_capratio_dataframe(path: str | Path | None = None) -> pd.DataFrame:
             df["cashflow_npv"] = pd.NA
 
     for col in [c for c in ["econ_value", "cap_resources", "cashflow_npv"] if c in df.columns]:
-        df[f"{col}_in_latest_dollars"] = df[col] * df["inflation_factor"]
+        df[f"{col}_in_latest_dollars"] = df[col] * df["inflation_factor"]/1000
 
     print(f"Inflation factor missing for {int(df['inflation_factor'].isna().sum())} rows")
     if "year_int" in df.columns:

@@ -653,7 +653,7 @@ app.layout = html.Div(
                                     href="https://www.linkedin.com/in/kevinapark/",
                                     target="_blank",
                                     rel="noopener noreferrer",
-                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"}
+                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"},
                                     title="LinkedIn"
                                 ),
                                 html.A(

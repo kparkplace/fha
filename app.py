@@ -339,11 +339,13 @@ def build_dashboard_sections() -> html.Div:
                         build_creditsubsidy_figure(creditsubsidy_df),
                     ),
                     build_data_sources([
-                        "Federal Credit Supplement. Table 2 and Table 8. Office of Management and Budget. Available at ",
-                        html.A("https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                               href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
-                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
-                        "."
+                        [
+                            "Federal Credit Supplement. Table 2 and Table 8. Office of Management and Budget. Available at ",
+                            html.A("https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                   href="https://www.whitehouse.gov/omb/information-resources/budget/supplemental-materials/",
+                                   target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                            "."
+                        ]
                     ]),
                 ],
                 style={"marginBottom": "24px"},
@@ -418,7 +420,17 @@ def build_dashboard_sections() -> html.Div:
                         html.A("https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
                                href="https://www.hud.gov/stat/sfh/mortgage-insurance-fund",
                                target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
-                        ". Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from ",
+                        ". "
+                    ],
+                    ["Edward Szymanoski, William Reeder, Padmasini Raman and John Comeau. \"The FHA Single Family Insurance Program: Performing a Needed "
+                     "Role in the Housing Finance Market\". US Department of Housing and Urban Development, 2012."
+                     " Available at: ",
+                        html.A("https://www.huduser.gov/publications/pdf/FHA_SingleFamilyIns_dec2012.pdf",
+                               href="https://www.huduser.gov/publications/pdf/FHA_SingleFamilyIns_dec2012.pdf",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        ". "
+                    ],
+                    ["Values are adjusted for inflation using the personal consumption expenditures (PCE) price index, retrieved from ",
                         html.A("FRED, Federal Reserve Bank of St. Louis",
                                href="https://fred.stlouisfed.org/",
                                target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),

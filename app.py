@@ -607,71 +607,74 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Img(
-                                    src="assets/IMG_20250531_125826.jpg",
-                                    style={
-                                        "width": "140px",
-                                        "height": "auto",
-                                        "borderRadius": "8px",
-                                        "marginBottom": "20px",
-                                        "marginRight": "16px",
-                                        "float": "left",
-                                        "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
-                                    }
+                                # Left column: Image and caption
+                                html.Div(
+                                    [
+                                        html.Img(
+                                            src="assets/IMG_20250531_125826.jpg",
+                                            style={
+                                                "width": "180px",
+                                                "height": "auto",
+                                                "borderRadius": "8px",
+                                                "marginBottom": "12px",
+                                                "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                            }
+                                        ),
+                                        html.Figcaption(
+                                            "Dr. Park in front of the first existing house to be bought with an FHA-insured home loan. "
+                                            "The 1940 Census reports Amos and Elsie Herbert owned the house located at 319 East Howell Ave in Alexandria, VA.",
+                                            style={
+                                                "fontSize": "0.75rem",
+                                                "color": "#64748b",
+                                                "fontStyle": "italic",
+                                                "textAlign": "center",
+                                            }
+                                        ),
+                                    ],
+                                    style={"flex": "0 0 auto", "marginRight": "24px", "minWidth": "180px"}
                                 ),
+                                # Right column: Text and connect icons
                                 html.Div(
                                     [
                                         html.P(
                                             "Kevin Park is an economist specializing in mortgage insurance and housing finance policy. "
                                             "He has a PhD in City and Regional Planning from UNC-Chapel Hill, writing his dissertation on mortgage insurance during the Great Financial Crisis. "
-                                            "He led work on FHA's TOTAL Mortgage Scorecard underwriting algorithm from 2015 to 2022 and currently works in the private mortgage insurance industry. ",
+                                            "He led work on FHA's TOTAL Mortgage Scorecard underwriting algorithm from 2015 to 2022 and currently works in the private mortgage insurance industry.",
                                             style={"marginBottom": "16px", "lineHeight": "1.6"},
                                         ),
+                                        html.Div(
+                                            [
+                                                html.Span("Connect: ", style={"fontWeight": "500", "marginRight": "8px"}),
+                                                html.A(
+                                                    html.I(className="fab fa-linkedin", style={"fontSize": "1.2rem", "color": "#0A66C2"}),
+                                                    href="https://www.linkedin.com/in/kevinapark/",
+                                                    target="_blank",
+                                                    rel="noopener noreferrer",
+                                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"},
+                                                    title="LinkedIn"
+                                                ),
+                                                html.A(
+                                                    html.I(className="fas fa-graduation-cap", style={"fontSize": "1.2rem", "color": "#4285F4"}),
+                                                    href="https://scholar.google.com/citations?user=4mUgOuMAAAAJ&hl=en",
+                                                    target="_blank",
+                                                    rel="noopener noreferrer",
+                                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"},
+                                                    title="Google Scholar"
+                                                ),
+                                                html.A(
+                                                    html.I(className="fas fa-envelope", style={"fontSize": "1.2rem", "color": "#EA4335"}),
+                                                    href="mailto:kevinapark@gmail.com",
+                                                    style={"textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"},
+                                                    title="Email"
+                                                ),
+                                            ],
+                                            style={"display": "flex", "alignItems": "center"}
+                                        ),
                                     ],
-                                    style={"overflow": "hidden"}
+                                    style={"flex": "1 1 auto"}
                                 )
                             ],
-                            style={"display": "flex", "flexWrap": "wrap", "alignItems": "flex-start"}
-                        ),
-                        html.Figcaption(
-                            "Dr. Park in front of the first existing house to be bought with an FHA-insured home loan. "
-                            "The 1940 Census reports Amos and Elsie Herbert owned the house located at 319 East Howell Ave in Alexandria, VA. ",
-                            style={
-                                "fontSize": "0.9rem",
-                                "color": "#64748b",
-                                "fontStyle": "italic",
-                                "marginTop": "12px",
-                                "clear": "both",
-                                "textAlign": "center",
-                            }
-                        ),
-                        html.Div(
-                            [
-                                html.Span("Connect: ", style={"fontWeight": "500", "marginRight": "8px"}),
-                                html.A(
-                                    html.I(className="fab fa-linkedin", style={"fontSize": "1.2rem", "color": "#0A66C2"}),
-                                    href="https://www.linkedin.com/in/kevinapark/",
-                                    target="_blank",
-                                    rel="noopener noreferrer",
-                                    style={"marginRight": "12px", "textDecoration": "none", "transition": "transform 0.2s", "cursor": "pointer"},
-                                    title="LinkedIn"
-                                ),
-                                html.A(
-                                    html.I(className="fas fa-graduation-cap", style={"fontSize": "1.2rem", "color": "#4285F4"}),
-                                    href="https://scholar.google.com/citations?user=4mUgOuMAAAAJ&hl=en",
-                                    target="_blank",
-                                    rel="noopener noreferrer",
-                                    style={"marginRight": "12px", "textDecoration": "none"},
-                                    title="Google Scholar"
-                                ),
-                                html.A(
-                                    html.I(className="fas fa-envelope", style={"fontSize": "1.2rem", "color": "#EA4335"}),
-                                    href="mailto:kevinapark@gmail.com",
-                                    style={"textDecoration": "none"},
-                                    title="Email"
-                                ),
-                            ],
-                            style={"display": "flex", "alignItems": "center"}
+                            style={"display": "flex", "gap": "24px", "alignItems": "flex-start"}
                         ),
                     ],
                     style={"marginBottom": "24px"}

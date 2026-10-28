@@ -19,14 +19,16 @@ def load_credit_subsidy_data(path: str | Path | None = None) -> pd.DataFrame:
     df["fiscal_year"] = df["fiscal_year"].astype(str).str.replace(r" \(P\)$", "", regex=True)
     df["original_subsidy_rate"] = pd.to_numeric(df["original_subsidy_rate"], errors="coerce")
     df["current_reestimated_rate"] = pd.to_numeric(df["current_reestimated_rate"], errors="coerce")
+    if "disbursements_to_date" in df.columns:
+        df["disbursements_to_date"] = pd.to_numeric(df["disbursements_to_date"], errors="coerce")
     df["fiscal_year_sort"] = pd.to_numeric(df["fiscal_year"], errors="coerce")
     df = df.sort_values("fiscal_year_sort").drop_duplicates(subset=["fiscal_year"], keep="first").reset_index(drop=True)
     return df.drop(columns=["fiscal_year_sort"])
 
 
-def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figure | None:
+def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> tuple[go.Figure | None, str]:
     if creditsubsidy_df is None or creditsubsidy_df.empty:
-        return None
+        return None, ""
 
     plot_df = creditsubsidy_df.copy()
     plot_df["fiscal_year"] = plot_df["fiscal_year"].map(
@@ -42,7 +44,7 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
     plot_df = plot_df.sort_values("fiscal_year_sort")
     plot_df = plot_df.dropna(subset=["current_reestimated_rate"])
     if plot_df.empty:
-        return None
+        return None, ""
 
     fig = go.Figure()
     fig.add_bar(
@@ -80,7 +82,18 @@ def build_creditsubsidy_figure(creditsubsidy_df: pd.DataFrame | None) -> go.Figu
     fig.update_xaxes(title_text="Book of Business", tickangle=90)
     fig.update_yaxes(title_text="Percent")
     fig.add_hline(y=0, line_dash="solid", line_color="#374151", line_width=1.25)
-    return fig
+
+    subtitle = ""
+    if "disbursements_to_date" in plot_df.columns:
+        wt_mask = plot_df["disbursements_to_date"].notna() & plot_df["current_reestimated_rate"].notna()
+        if wt_mask.any():
+            total_wt = plot_df.loc[wt_mask, "disbursements_to_date"].sum()
+            weighted_avg = (
+                plot_df.loc[wt_mask, "disbursements_to_date"] * plot_df.loc[wt_mask, "current_reestimated_rate"]
+            ).sum() / total_wt
+            subtitle = f"Disbursement-weighted average: {weighted_avg:.2f}%"
+
+    return fig, subtitle
 
 
 if __name__ == "__main__":

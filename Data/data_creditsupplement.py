@@ -80,9 +80,15 @@ def build_credit_subsidy_dataframe(url: str = URL) -> pd.DataFrame:
     if original_column is None or current_column is None:
         raise ValueError(f"Could not locate subsidy rate columns in Table8: {list(table8_df.columns)}")
 
-    table8_df = table8_df[["fiscal_year", original_column, current_column]].rename(
-        columns={original_column: "original_subsidy_rate", current_column: "current_reestimated_rate"}
-    )
+    disbursements_pattern = re.compile(r"disburs", re.I)
+    disbursements_column = next((col for col in table8_df.columns if disbursements_pattern.search(str(col))), None)
+
+    keep_cols = ["fiscal_year", original_column, current_column]
+    rename_map = {original_column: "original_subsidy_rate", current_column: "current_reestimated_rate"}
+    if disbursements_column is not None:
+        keep_cols.append(disbursements_column)
+        rename_map[disbursements_column] = "disbursements_to_date"
+    table8_df = table8_df[keep_cols].rename(columns=rename_map)
 
     bio = io.BytesIO(raw_bytes)
     xls = pd.ExcelFile(bio)

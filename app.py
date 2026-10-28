@@ -84,7 +84,7 @@ def ensure_data_loaded() -> None:
             DATA_CACHE["creditsubsidy_error"] = str(exc)
 
 
-def build_section_header(title: str, description: str | None = None) -> html.Div:
+def build_section_header(title: str, description: str | list | None = None) -> html.Div:
     """Build a section header with title and optional description."""
     return html.Div(
         [
@@ -187,10 +187,7 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Originations",
-                    "The first existing house to be bought with an FHA-insured loan is located at 319 East Howell Ave in Alexandria, VA. "
-                    "The 1940 Census reports Amos E. Herbert owned the house with his wife Elsie and two children. "
-                    "Amos was a railroad accountant born in 1889. The house was reported to be worth $5,000 in 1940. "
-                    "The first house to be built with FHA financing is 30 Hopper Ave in Pompton Plains, NJ. "
+                    "The first house built with FHA financing is located at 30 Hopper Ave in Pompton Plains, NJ. "
                     "The house was built for Warren H. Newkirk and his wife Lena with a $4,800 mortgage from Prospect Park National Bank. "
                     "The 1930 Census lists Warren as a department manager at a celluloid company renting a house in nearby Wanaque, NJ for $75 a month. "
                     "He was born around 1883, making him roughly 51 when he had the house built. "
@@ -325,6 +322,7 @@ def build_dashboard_sections() -> html.Div:
 
     # 4) Credit Subsidy Rates Section
     if creditsubsidy_df is not None:
+        creditsubsidy_fig, creditsubsidy_subtitle = build_creditsubsidy_figure(creditsubsidy_df)
         sections.append(
             html.Div(
                 [
@@ -332,14 +330,17 @@ def build_dashboard_sections() -> html.Div:
                         "Credit Subsidy by Cohort",
                         "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
                         "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
-                        "A negative credit subsidy indicates a book of business is projected to bring in more revenue than it costs the government. "
-                        "These estimates are revised every year as part of the federal budget process.",
+                        "These estimates are revised every year as part of the federal budget process. "
+                        "On average, FHA takes in more in premiums than it pays out in claims, resulting in a negative credit subsidy. "
+                        "However, profitability does not justify the existence of the program. "
+                        "As former FHA Commissioner John Weicher (1995) wrote, \u201c[T]he fact that FHA does not lose money on its home mortgage insurance is not a justification "
+                        "for its existence; the justification is that it serves a public purpose. Serving that purpose without "
+                        "losing money is an indication that FHA home mortgage insurance works reasonably well\u2014not perfectly, but reasonably well.\u201d",
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",
-                        "Current re-estimated rates with original estimate markers. Original estimates are made at loan origination; "
-                        "re-estimates reflect updated expectations as the cohort ages.",
-                        build_creditsubsidy_figure(creditsubsidy_df),
+                        creditsubsidy_subtitle,
+                        creditsubsidy_fig,
                     ),
                     build_data_sources([
                         [
@@ -362,11 +363,28 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "MMI Fund Capital",
-                    "The National Affordable Housing Act of 1990 requires an annual independent actuarial review "
-                    "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio. "
-                    "The capital ratio is defined as the economic net worth of the Fund relative to the insurance-in-force. "
-                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized' "
-                    "in a way that includes some amortized loans.",
+                    [
+                        "The National Affordable Housing Act of 1990 requires an annual independent actuarial review "
+                        "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio. "
+                        "The capital ratio is defined as the economic net worth of the Fund relative to the insurance-in-force.",
+                        html.Details(
+                            [
+                                html.Summary(
+                                    "*",
+                                    style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"},
+                                ),
+                                html.P(
+                                    "The Act specifically states 'unamortized' insurance-in-force but then defines 'unamortized' "
+                                    "in a way that includes some amortized loans.",
+                                    style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"},
+                                ),
+                            ],
+                            style={"display": "inline"},
+                        ),
+                        "Two percent is substantially lower than the capital requirements for private mortgage insurers laid out "
+                        "by Fannie Mae and Freddie Mac's Private Mortgage Insurers Eligibility Requirements (PMIERS), "
+                        "which varies by portfolio risk but has a floor of 5.6 percent of risk-in-force."
+                    ],
                 ),
                 html.Div(
                     [

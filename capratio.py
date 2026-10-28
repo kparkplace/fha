@@ -97,44 +97,56 @@ def build_capital_ratio_figure(capratio_df: pd.DataFrame) -> go.Figure | None:
     if not metrics:
         return None
 
-    plot_df = capratio_df.melt(
-        id_vars=["year", "source"],
-        value_vars=metrics,
-        var_name="metric",
-        value_name="value",
-    ).dropna(subset=["year", "value"])
+    label_map = {
+        "cap_ratio": "Amortized IIF",
+        "cap_ratio_unamort": "Unamortized IIF",
+    }
+    dash_map = {
+        "cap_ratio": "solid",
+        "cap_ratio_unamort": "dash",
+    }
 
-    plot_df["metric"] = plot_df["metric"].replace(
-        {
-            "cap_ratio": "Amortized IIF",
-            "cap_ratio_unamort": "Unamortized IIF",
-        }
-    )
-    plot_df["value"] = plot_df["value"] * 100
+    plot_df = capratio_df.copy()
+    sources = plot_df["source"].dropna().unique()
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+    color_map = {src: colors[i % len(colors)] for i, src in enumerate(sources)}
 
-    fig = px.line(
-        plot_df.sort_values(["source", "metric", "year"]),
-        x="year",
-        y="value",
-        color="source",
-        line_dash="metric",
-        line_dash_map={
-            "Amortized IIF": "solid",
-            "Unamortized IIF": "dash",
-        }
-    )
-    
-    # Hide metric traces from legend, keep only source
-    for trace in fig.data:
-        trace.showlegend = True
-        # Extract source name (it's the trace name)
-        # Plotly creates names like "source_value, metric_value"
-        # We want to keep only the source part
-        parts = trace.name.split(", ")
-        if len(parts) == 2:
-            trace.name = parts[0]
-    
-    fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.2f}<extra></extra>")
+    fig = go.Figure()
+    seen_sources: set[str] = set()
+
+    for metric in metrics:
+        label = label_map[metric]
+        dash = dash_map[metric]
+        for src in sources:
+            mask = plot_df["source"] == src
+            rows = plot_df.loc[mask, ["year", metric]].dropna()
+            if rows.empty:
+                continue
+            show_in_legend = src not in seen_sources
+            seen_sources.add(src)
+            fig.add_scatter(
+                x=rows["year"].tolist(),
+                y=(rows[metric] * 100).tolist(),
+                mode="lines",
+                name=src,
+                line={"color": color_map[src], "dash": dash},
+                legendgroup=src,
+                showlegend=show_in_legend,
+                hovertemplate=f"{label}<br>Year=%{{x}}<br>Value=%{{y:,.2f}}%<extra>{src}</extra>",
+            )
+
+    # Dummy traces to show Amortized/Unamortized in legend
+    for metric in metrics:
+        label = label_map[metric]
+        dash = dash_map[metric]
+        fig.add_scatter(
+            x=[None], y=[None],
+            mode="lines",
+            name=label,
+            line={"color": "#374151", "dash": dash},
+            showlegend=True,
+        )
+
     return _apply_figure_layout(fig, y_axis_title="Percent", height=560)
 
 
@@ -157,7 +169,7 @@ def build_adjusted_figure(
         y="value",
         color="source",
     )
-    fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.0f}<br>Source=%{fullData.name}<extra></extra>")
+    fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.0f}<extra></extra>")
     return _apply_figure_layout(
         fig,
         y_axis_title=y_axis_title,

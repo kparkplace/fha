@@ -1,0 +1,95 @@
+/* ── Section Jump Navigation ────────────────────────────────────────── */
+
+.section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.nav-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 18px;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.nav-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-link {
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 10px 14px;
+    white-space: nowrap;
+    display: block;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.nav-link:hover {
+    color: #1e293b;
+    border-bottom-color: #3b82f6;
+}
+
+/* Offset anchor targets so sticky nav doesn't obscure the section header */
+[id^="section-"] {
+    scroll-margin-top: 52px;
+}
+
+/* ── Responsive / Mobile Styles ────────────────────────────────────── */
+
+/* dcc.Graph: always fill the card width */
+.js-plotly-plot,
+.plotly-graph-div {
+    width: 100% !important;
+}
+
+/* About section: side-by-side on desktop, stacked on mobile */
+.about-flex {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+    .about-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .about-image-col {
+        margin-right: 0 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Main content: tighter horizontal padding on small screens */
+@media (max-width: 640px) {
+    .main-content {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* Header: reduce vertical padding */
+    .site-header {
+        padding: 12px 10px !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* Section headers: slightly smaller title */
+    .site-header h1 {
+        font-size: 1.15rem;
+    }
+}

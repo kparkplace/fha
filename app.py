@@ -226,6 +226,7 @@ def build_dashboard_sections() -> html.Div:
                     ],
                 ]),
             ],
+            id="section-originations",
             style={"marginBottom": "24px"},
         )
     )
@@ -271,6 +272,7 @@ def build_dashboard_sections() -> html.Div:
                     ],
                 ]),
             ],
+            id="section-credit-risk",
             style={"marginBottom": "24px"},
         )
     )
@@ -301,7 +303,7 @@ def build_dashboard_sections() -> html.Div:
                     ],
                     style={
                         "display": "grid",
-                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
+                        "gridTemplateColumns": "repeat(auto-fit, minmax(min(420px, 100%), 1fr))",
                         "gap": "14px",
                         "alignItems": "start",
                     },
@@ -316,6 +318,7 @@ def build_dashboard_sections() -> html.Div:
                     ]
                 ]),
             ],
+            id="section-claim-rates",
             style={"marginBottom": "24px"},
         )
     )
@@ -348,6 +351,7 @@ def build_dashboard_sections() -> html.Div:
                         ]
                     ]),
                 ],
+                id="section-credit-subsidy",
                 style={"marginBottom": "24px"},
             )
         )
@@ -409,7 +413,7 @@ def build_dashboard_sections() -> html.Div:
                     ],
                     style={
                         "display": "grid",
-                        "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
+                        "gridTemplateColumns": "repeat(auto-fit, minmax(min(420px, 100%), 1fr))",
                         "gap": "14px",
                         "alignItems": "start",
                     },
@@ -438,6 +442,7 @@ def build_dashboard_sections() -> html.Div:
                     ],
                 ]),
             ],
+            id="section-mmi-capital",
             style={"marginBottom": "24px"},
         )
     )
@@ -490,6 +495,7 @@ app.index_string = '''
 <html>
     <head>
         {%metas%}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
@@ -545,6 +551,21 @@ app.layout = html.Div(
                 "padding": "20px 18px",
                 "marginBottom": "24px",
             },
+            className="site-header",
+        ),
+        # Section jump navigation
+        html.Nav(
+            html.Div(
+                [
+                    html.A("Originations", href="#section-originations", className="nav-link"),
+                    html.A("Credit Risk", href="#section-credit-risk", className="nav-link"),
+                    html.A("Claim Rates", href="#section-claim-rates", className="nav-link"),
+                    html.A("Credit Subsidy", href="#section-credit-subsidy", className="nav-link"),
+                    html.A("MMI Capital", href="#section-mmi-capital", className="nav-link"),
+                ],
+                className="nav-inner",
+            ),
+            className="section-nav",
         ),
         # Main content
         html.Div(
@@ -632,7 +653,8 @@ app.layout = html.Div(
                                             }
                                         ),
                                     ],
-                                    style={"flex": "0 0 auto", "marginRight": "24px", "minWidth": "180px"}
+                                    style={"flex": "0 0 auto", "marginRight": "24px", "minWidth": "180px"},
+                                    className="about-image-col",
                                 ),
                                 # Right column: Text and connect icons
                                 html.Div(
@@ -675,7 +697,8 @@ app.layout = html.Div(
                                     style={"flex": "1 1 auto"}
                                 )
                             ],
-                            style={"display": "flex", "gap": "24px", "alignItems": "flex-start"}
+                            style={"display": "flex", "gap": "24px", "alignItems": "flex-start"},
+                            className="about-flex",
                         ),
                     ],
                     style={"marginBottom": "24px"}
@@ -710,6 +733,7 @@ app.layout = html.Div(
                 "margin": "0 auto",
                 "padding": "0 18px 24px 18px",
             },
+            className="main-content",
         ),
     ],
     style={

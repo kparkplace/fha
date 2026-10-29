@@ -187,12 +187,13 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Originations",
-                    "The first house built with FHA financing is located at 30 Hopper Ave in Pompton Plains, NJ. "
-                    "The house was built for Warren H. Newkirk and his wife Lena with a $4,800 mortgage from Prospect Park National Bank. "
-                    "The 1930 Census lists Warren as a department manager at a celluloid company renting a house in nearby Wanaque, NJ for $75 a month. "
-                    "He was born around 1883, making him roughly 51 when he had the house built. "
-                    "The 1940 Census shows the house was worth $9,000. "
-                    "The Newkirks paid off their mortgage when Warren retired in 1948 and received a $400 refund from FHA.",
+                    "The first FHA mortgage committment was issued on December 21, 1934 "
+                    "for a $4,800 loan from Propect Park National Bank to Warren H. Newkirk and his wife Lena"
+                    "for a new house at 30 Hopper Ave in Pompton Plains, NJ. "
+                    html.Br(),
+                    "The majority of FHA borrowers are first-time homebuyers for whom conventional (i.e., not government-insured) financing"
+                    "would be more expensive or entirely unavailable."
+                ,
                 ),
                 build_chart_card(
                     "Endorsements by Year",
@@ -200,6 +201,9 @@ def build_dashboard_sections() -> html.Div:
                     endorsements_fig,
                 ),
                 build_data_sources([
+                    [
+                        "The FHA Story in Summary, Federal Housing Administration, 1959."
+                    ],
                     [
                         "1979 Statistical Yearbook, US Department of Housing and Urban Development. Available at ",
                         html.A("https://www.huduser.gov/portal/sites/default/files/publications/pdf/HUD-4033.pdf", 
@@ -238,12 +242,14 @@ def build_dashboard_sections() -> html.Div:
                     "Davis et al. (2023) compute the mortgage default rate on loans originated in 2006 and 2007 by credit score, debt-to-income (DTI) ratio, and loan-to-value (LTV) ratio. "
                     "Then they estimate the probability of default for each annual cohort based on the composition of borrower and loan characteristics. "
                     "The American Enterprise Institute's National Mortgage Default Rate metric extends that estimate to the present on a monthly basis. "
+                    html.Br(),
                     "However, the average default probability of FHA-insured loans does not necessarily reflect changes in FHA underwriting. "
                     "Many lenders apply credit overlays, restricting the risk profile of borrowers beyond FHA's minimum standards. "
                     "So the number of high-risk FHA borrowers is impacted by the implementation and relaxation of these overlays. "
-                    "At the same time, conventional lenders (e.g., loans acquired by Fannie Mae and Freddie Mac, or held in bank portfolios) compete for lower risk borrowers. "
+                    "At the same time, conventional lenders compete for lower risk borrowers. "
                     "The combination of FHA underwriting standards, lender overlays, and conventional market competition determine FHA's average risk. "
-                    "Nevertheless, there is an obvious reduction in default risk among FHA-insured loans during the Great Financial Crisis, and the average risk has remained well below the average of the 1990s.",
+                    html.Br(),
+                    "Nevertheless, there is an obvious reduction in default risk among FHA-insured loans during the Great Financial Crisis, and the average risk has remained well below that of the 1990s.",
                 ),
                 build_chart_card(
                     "Estimated Stressed Default Rate",
@@ -279,11 +285,10 @@ def build_dashboard_sections() -> html.Div:
         html.Div(
             [
                 build_section_header(
-                    "Cumulative Claim Rates",
-                    "The annual actuarial reviews of the MMI Fund include the loan performance of the book of business "
-                    "over the previous 30 years and project their future performance. "
-                    "By compiling historical actuarial reviews, the data below show 50 years of "
-                    "claim terminations as a share of insured loans.",
+                    "Claims",
+                    "The annual actuarial reviews of the MMI Fund include the loan performance of prior cohorts and project their future performance. "
+                    "By compiling historical actuarial reviews, the data below show 50 years of claim terminations as a share of insured loans."
+                    "FHA loans insured since 2012 are on pace to experience the lowest claim rates since at least 1974.",
                 ),
                 html.Div(
                     [
@@ -331,7 +336,10 @@ def build_dashboard_sections() -> html.Div:
                         "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
                         "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
                         "These estimates are revised every year as part of the federal budget process. "
-                        "On average, FHA takes in more in premiums than it pays out in claims, resulting in a negative credit subsidy. "
+                        html.Br(),
+                        "Although FHA lost money on loans originated prior to the Great Financial Crisis,"
+                        "it generally takes in more in premiums than it pays out in claims, resulting in an average negative credit subsidy since estimates began in 1992. "
+                        html.Br(),
                         "However, profitability does not justify the existence of the program. "
                         "As former FHA Commissioner John Weicher (1995) wrote, \u201c[T]he fact that FHA does not lose money on its home mortgage insurance is not a justification "
                         "for its existence; the justification is that it serves a public purpose. Serving that purpose without "
@@ -365,8 +373,8 @@ def build_dashboard_sections() -> html.Div:
                     "MMI Fund Capital",
                     [
                         "The National Affordable Housing Act of 1990 requires an annual independent actuarial review "
-                        "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio. "
-                        "The capital ratio is defined as the economic net worth of the Fund relative to the insurance-in-force.",
+                        "of the Mutual Mortgage Insurance Fund and a 2 percent minimum capital ratio, "
+                        "defined as the economic net worth of the Fund relative to the insurance-in-force.",
                         html.Details(
                             [
                                 html.Summary(
@@ -384,6 +392,14 @@ def build_dashboard_sections() -> html.Div:
                         "Two percent is substantially lower than the capital requirements for private mortgage insurers laid out "
                         "by Fannie Mae and Freddie Mac's Private Mortgage Insurers Eligibility Requirements (PMIERS), "
                         "which varies by portfolio risk but has a floor of 5.6 percent of risk-in-force."
+                        html.Br(),
+                        "However, as noted, the profitability of FHA is not the justification for its existence."
+                        "The economic value of the MMI Fund has turned negative twice since 1990, meaning it was technically insolvent."
+                        "Yet the full faith and credit of the U.S. government means FHA insurance is still valued by investors."
+                        "That allows FHA to perform a counter-cyclical role, increasing lending while private insurers are retreating."
+                        "The first actuarial review of the Fund in 1990 concluded: 'The value of the Fund need not be sufficient to withstand all conceivable future economic conditions. We do not believe it is possible to build MMI's equity to a level needed to cover catastrophic risk. To do so would require premiums at levels that would impair MMI's social purposes. Catastrophic risk is implicitly covered through the backing of the U.S. Treasury.'"
+                        html.Br(),
+                        "The MMI Fund today has ample capital resources, well exceeding its statutory minimum requirements."
                     ],
                 ),
                 html.Div(
@@ -592,13 +608,13 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P(
-                            "The Federal Housing Administration (FHA) was created in 1934 'to encourage improvement in housing standards and conditions, "
+                            "The Federal Housing Administration (FHA) was created by the National Housing Act of 1934 'to encourage improvement in housing standards and conditions, "
                             "to provide a system of mutual mortgage insurance, and for other purposes.' Since then it has insured over 55 million home loans "
                             "and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund.",
                             style={"marginBottom": "12px"},
                         ),
                         html.P(
-                            "This website provides an overview of the financial health of single-family forward loans in the MMI Fund."
+                            "This website provides an historical overview of FHA's single-family forward loan program."
                             "The analysis and views shown here are those of the author and do not represent any current or former employer. "
                             "The website is not affiliated with FHA or any government agency.",
                             style={"display": "inline"}

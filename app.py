@@ -395,15 +395,15 @@ def build_dashboard_sections() -> html.Div:
                         ),
                         "Two percent is substantially lower than the capital requirements for private mortgage insurers laid out "
                         "by Fannie Mae and Freddie Mac's Private Mortgage Insurers Eligibility Requirements (PMIERS), "
-                        "which varies by portfolio risk but has a floor of 5.6 percent of risk-in-force."
+                        "which varies by portfolio risk but has a floor of 5.6 percent of risk-in-force.",
                         html.Br(),
-                        "However, as noted, the profitability of FHA is not the justification for its existence."
-                        "The economic value of the MMI Fund has turned negative twice since 1990, meaning it was technically insolvent."
-                        "Yet the full faith and credit of the U.S. government means FHA insurance is still valued by investors."
-                        "That allows FHA to perform a counter-cyclical role, increasing lending while private insurers are retreating."
-                        "The first actuarial review of the Fund in 1990 concluded: 'The value of the Fund need not be sufficient to withstand all conceivable future economic conditions. We do not believe it is possible to build MMI's equity to a level needed to cover catastrophic risk. To do so would require premiums at levels that would impair MMI's social purposes. Catastrophic risk is implicitly covered through the backing of the U.S. Treasury.'"
+                        "However, as noted, the profitability of FHA is not the justification for its existence.",
+                        "The economic value of the MMI Fund has turned negative twice since 1990, meaning it was technically insolvent.",
+                        "Yet the full faith and credit of the U.S. government means FHA insurance is still valued by investors.",
+                        "That allows FHA to perform a counter-cyclical role, increasing lending while private insurers are retreating.",
+                        "The first actuarial review of the Fund in 1990 concluded: 'The value of the Fund need not be sufficient to withstand all conceivable future economic conditions. We do not believe it is possible to build MMI's equity to a level needed to cover catastrophic risk. To do so would require premiums at levels that would impair MMI's social purposes. Catastrophic risk is implicitly covered through the backing of the U.S. Treasury.'",
                         html.Br(),
-                        "The MMI Fund today has ample capital resources, well exceeding its statutory minimum requirements."
+                        "The MMI Fund today has ample capital resources, well exceeding its statutory minimum requirements.",
                     ],
                 ),
                 html.Div(

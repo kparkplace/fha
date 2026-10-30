@@ -187,12 +187,16 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Originations",
-                    "The first FHA mortgage committment was issued on December 21, 1934 "
-                    "for a $4,800 loan from Propect Park National Bank to Warren H. Newkirk and his wife Lena"
-                    "for a new house at 30 Hopper Ave in Pompton Plains, NJ. "
+                    "In December 1934, Amos and Elise Herbert applied to refinance their home in the Del Ray neighborhood of Alexandra, Virginia."
+                    "Amos was a 45-year old clerk making $137 per month for the Southern Railway Company, where he had worked for 28 years."
+                    "He was described as, 'a steady, industrious type and seems to be a good type of citizen. Anxious to keep his home, and interested in his family's welfare.'" \
+                    "But his pay had been cut 10 percent over the previous four years, and he was struggling to pay his property taxes and second mortgage."
+                    "With the help of a new federal insurance program, Amos and Elise were able to get a $3,500 loan from Alexandria National Bank"
+                    "to be paid back at $25.07 per month for the next 19 1/2 years."
                     html.Br(),
-                    "The majority of FHA borrowers are first-time homebuyers for whom conventional (i.e., not government-insured) financing"
-                    "would be more expensive or entirely unavailable."
+                    "This was the first home mortgage insured by the Federal Housing Administration."
+                    "Since then, FHA has helped over 55 million American households, many struggling financially like the Herberts, to achieve and sustain the American Dream."
+
                 ,
                 ),
                 build_chart_card(

@@ -653,7 +653,7 @@ app.layout = html.Div(
                                 ),
                             ],
                             style={"display": "inline"}
-                        )
+                        ),
                         html.P(
                             "The analysis and views shown here are those of the author and do not represent any current or former employer. "
                             "The website is not affiliated with FHA or any government agency.",

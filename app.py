@@ -187,17 +187,17 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Originations",
-                    "In December 1934, Amos and Elise Herbert applied to refinance their home in the Del Ray neighborhood of Alexandra, Virginia."
-                    "Amos was a 45-year old clerk making $137 per month for the Southern Railway Company, where he had worked for 28 years."
-                    "He was described as, 'a steady, industrious type and seems to be a good type of citizen. Anxious to keep his home, and interested in his family's welfare.'" \
-                    "But his pay had been cut 10 percent over the previous four years, and he was struggling to pay his property taxes and second mortgage."
-                    "With the help of a new federal insurance program, Amos and Elise were able to get a $3,500 loan from Alexandria National Bank"
-                    "to be paid back at $25.07 per month for the next 19 1/2 years."
-                    html.Br(),
-                    "This was the first home mortgage insured by the Federal Housing Administration."
-                    "Since then, FHA has helped over 55 million American households, many struggling financially like the Herberts, to achieve and sustain the American Dream."
-
-                ,
+                    [
+                        "In December 1934, Amos and Elise Herbert applied to refinance their home in the Del Ray neighborhood of Alexandria, Virginia. "
+                        "Amos was a 45-year-old clerk making $137 per month for the Southern Railway Company, where he had worked for 28 years. "
+                        "He was described as, 'a steady, industrious type and seems to be a good type of citizen. Anxious to keep his home, and interested in his family's welfare.' "
+                        "But his pay had been cut 10 percent over the previous four years, and he was struggling to pay his property taxes and second mortgage. "
+                        "With the help of a new federal insurance program, Amos and Elise were able to get a $3,500 loan from Alexandria National Bank "
+                        "to be paid back at $25.07 per month for the next 19 1/2 years.",
+                        html.Br(),
+                        "This was the first home mortgage insured by the Federal Housing Administration. "
+                        "Since then, FHA has helped over 55 million American households, many struggling financially like the Herberts, to achieve and sustain the American Dream.",
+                    ],
                 ),
                 build_chart_card(
                     "Endorsements by Year",
@@ -242,18 +242,20 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Credit Risk",
-                    "Underwriting quality can be assessed by combining borrower and loan characteristics with historical loan performance. "
-                    "Davis et al. (2023) compute the mortgage default rate on loans originated in 2006 and 2007 by credit score, debt-to-income (DTI) ratio, and loan-to-value (LTV) ratio. "
-                    "Then they estimate the probability of default for each annual cohort based on the composition of borrower and loan characteristics. "
-                    "The American Enterprise Institute's National Mortgage Default Rate metric extends that estimate to the present on a monthly basis. "
-                    html.Br(),
-                    "However, the average default probability of FHA-insured loans does not necessarily reflect changes in FHA underwriting. "
-                    "Many lenders apply credit overlays, restricting the risk profile of borrowers beyond FHA's minimum standards. "
-                    "So the number of high-risk FHA borrowers is impacted by the implementation and relaxation of these overlays. "
-                    "At the same time, conventional lenders compete for lower risk borrowers. "
-                    "The combination of FHA underwriting standards, lender overlays, and conventional market competition determine FHA's average risk. "
-                    html.Br(),
-                    "Nevertheless, there is an obvious reduction in default risk among FHA-insured loans during the Great Financial Crisis, and the average risk has remained well below that of the 1990s.",
+                    [
+                        "Underwriting quality can be assessed by combining borrower and loan characteristics with historical loan performance. "
+                        "Davis et al. (2023) compute the mortgage default rate on loans originated in 2006 and 2007 by credit score, debt-to-income (DTI) ratio, and loan-to-value (LTV) ratio. "
+                        "Then they estimate the probability of default for each annual cohort based on the composition of borrower and loan characteristics. "
+                        "The American Enterprise Institute's National Mortgage Default Rate metric extends that estimate to the present on a monthly basis.",
+                        html.Br(),
+                        "However, the average default probability of FHA-insured loans does not necessarily reflect changes in FHA underwriting. "
+                        "Many lenders apply credit overlays, restricting the risk profile of borrowers beyond FHA's minimum standards. "
+                        "So the number of high-risk FHA borrowers is impacted by the implementation and relaxation of these overlays. "
+                        "At the same time, conventional lenders compete for lower risk borrowers. "
+                        "The combination of FHA underwriting standards, lender overlays, and conventional market competition determine FHA's average risk.",
+                        html.Br(),
+                        "Nevertheless, there is an obvious reduction in default risk among FHA-insured loans during the Great Financial Crisis, and the average risk has remained well below that of the 1990s.",
+                    ],
                 ),
                 build_chart_card(
                     "Estimated Stressed Default Rate",
@@ -337,17 +339,19 @@ def build_dashboard_sections() -> html.Div:
                 [
                     build_section_header(
                         "Credit Subsidy by Cohort",
-                        "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
-                        "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
-                        "These estimates are revised every year as part of the federal budget process. "
-                        html.Br(),
-                        "Although FHA lost money on loans originated prior to the Great Financial Crisis,"
-                        "it generally takes in more in premiums than it pays out in claims, resulting in an average negative credit subsidy since estimates began in 1992. "
-                        html.Br(),
-                        "However, profitability does not justify the existence of the program. "
-                        "As former FHA Commissioner John Weicher (1995) wrote, \u201c[T]he fact that FHA does not lose money on its home mortgage insurance is not a justification "
-                        "for its existence; the justification is that it serves a public purpose. Serving that purpose without "
-                        "losing money is an indication that FHA home mortgage insurance works reasonably well\u2014not perfectly, but reasonably well.\u201d",
+                        [
+                            "The Federal Credit Reform Act of 1990 requires the Office of Management and Budget to estimate the lifetime cost "
+                            "of federal direct loans and loan guarantees, rather than only budgeting on a cash-flow basis. "
+                            "These estimates are revised every year as part of the federal budget process.",
+                            html.Br(),
+                            "Although FHA lost money on loans originated prior to the Great Financial Crisis, "
+                            "it generally takes in more in premiums than it pays out in claims, resulting in an average negative credit subsidy since estimates began in 1992.",
+                            html.Br(),
+                            "However, profitability does not justify the existence of the program. "
+                            "As former FHA Commissioner John Weicher (1995) wrote, \u201c[T]he fact that FHA does not lose money on its home mortgage insurance is not a justification "
+                            "for its existence; the justification is that it serves a public purpose. Serving that purpose without "
+                            "losing money is an indication that FHA home mortgage insurance works reasonably well\u2014not perfectly, but reasonably well.\u201d",
+                        ],
                     ),
                     build_chart_card(
                         "Credit Subsidy Rates",

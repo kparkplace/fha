@@ -637,7 +637,7 @@ app.layout = html.Div(
                                 ),
                             ],
                             style={"display": "inline"}
-                        )
+                        ),
                         html.P(
                             "This website provides an historical overview of FHA's single-family forward mortgage program."
                         ),

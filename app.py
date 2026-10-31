@@ -206,9 +206,6 @@ def build_dashboard_sections() -> html.Div:
                 ),
                 build_data_sources([
                     [
-                        "The FHA Story in Summary, Federal Housing Administration, 1959."
-                    ],
-                    [
                         "1979 Statistical Yearbook, US Department of Housing and Urban Development. Available at ",
                         html.A("https://www.huduser.gov/portal/sites/default/files/publications/pdf/HUD-4033.pdf", 
                                href="https://www.huduser.gov/portal/sites/default/files/publications/pdf/HUD-4033.pdf",
@@ -570,7 +567,7 @@ app.layout = html.Div(
                         [
                             html.Div(
                                 [
-                                    html.H1("FHA Single-Family Forward Loans", style={"marginBottom": "4px", "display": "inline"}),
+                                    html.H1("FHA History", style={"marginBottom": "4px", "display": "inline"}),
                                     html.Span("*", style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "marginLeft": "4px"}),
                                 ],
                                 style={"display": "flex", "alignItems": "baseline"}
@@ -616,16 +613,33 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P(
-                            "The Federal Housing Administration (FHA) was created by the National Housing Act of 1934 'to encourage improvement in housing standards and conditions, "
-                            "to provide a system of mutual mortgage insurance, and for other purposes.' Since then it has insured over 55 million home loans "
-                            "and currently guarantees $1.6 trillion through its Mutual Mortgage Insurance Fund.",
-                            style={"marginBottom": "12px"},
+                            "The Federal Housing Administration (FHA) was created by the National Housing Act of 1934."
+                            "Title II of the Act creates 'a system of mutual mortgage insurance. in which borrowers pay"
+                            "insurance premiums into a fund to compensate lenders in case of default. The role of the federal"
+                            "government was not to displace the private market, but 'to establish the conditions under"
+                            "which private initiative could feed itself and multiply its own benefits. (Eccles 1951). The"
+                            "Mutual Mortgage Insurance Fund currently guarantees $1.6 trillion in home loans to"
+                            "households who might not otherwise be able to own their home."
                         ),
-                        html.P(
-                            "This website provides an historical overview of FHA's single-family forward loan program."
-                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
-                            "The website is not affiliated with FHA or any government agency.",
+                        html.Details(
+                            [
+                                html.Summary(
+                                    "*",
+                                    style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"}
+                                ),
+                                html.P(
+                                    "A 'mutual' insurance company is one owned by its policyholders and where surplus profits are redistributed back to customers"
+                                    "FHA paid such dividends between 1943 and 1991 to borrowers who paid off their loans"
+                                    "but payments were suspended due to the financial conditional of the Fund. However, FHA is still authorized"
+                                    "to pay distributive shares 'in such manner and amount' determined 'to be equitable and in accordance"
+                                    "with sound actuarial and accounting practice.'",
+                                    style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"}
+                                ),
+                            ],
                             style={"display": "inline"}
+                        )
+                        html.P(
+                            "This website provides an historical overview of FHA's single-family forward mortgage program."
                         ),
                         html.Details(
                             [
@@ -640,6 +654,12 @@ app.layout = html.Div(
                             ],
                             style={"display": "inline"}
                         )
+                        html.P(
+                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
+                            "The website is not affiliated with FHA or any government agency.",
+                            style={"display": "inline"}
+                        ),
+
                     ],
                 ),
                 # Dashboard sections

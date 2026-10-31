@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -867,4 +868,4 @@ def load_and_render(_n_intervals: int):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8050)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8050)), debug=False)

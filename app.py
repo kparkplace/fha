@@ -574,6 +574,10 @@ app.layout = html.Div(
                                 ],
                                 style={"display": "flex", "alignItems": "center"}
                             ),
+                            html.P(
+                            "This website is not affiliated with FHA or any government agency. The views and analyses shown here are those of the author and do not represent any current or former employer. ",
+                            style={"display": "inline"}
+                        )
                         ],
                     ),
                 ],
@@ -611,7 +615,11 @@ app.layout = html.Div(
                             [
                                 "The Federal Housing Administration (FHA) was created by the National Housing Act of 1934. "
                                 "Title II of the Act creates 'a system of mutual mortgage insurance' in which borrowers pay "
-                                "insurance premiums into a fund to compensate lenders in case of default.",
+                                "insurance premiums into a fund to compensate lenders in case of default."
+                                " The role of the federal government was not to displace the private market, but 'to establish the conditions under "
+                                "which private initiative could feed itself and multiply its own benefits.' (Eccles 1951). The "
+                                "Mutual Mortgage Insurance Fund currently guarantees $1.6 trillion in home loans to "
+                                "households who might not otherwise be able to own their home.",
                                 html.Details(
                                     [
                                         html.Summary(
@@ -629,15 +637,11 @@ app.layout = html.Div(
                                     ],
                                     style={"display": "inline"},
                                 ),
-                                " The role of the federal government was not to displace the private market, but 'to establish the conditions under "
-                                "which private initiative could feed itself and multiply its own benefits.' (Eccles 1951). The "
-                                "Mutual Mortgage Insurance Fund currently guarantees $1.6 trillion in home loans to "
-                                "households who might not otherwise be able to own their home."
                             ]
                         ),
                         html.P(
                             [
-                                "This website provides an historical overview of FHA's single-family forward",
+                                "This website provides an historical overview of FHA's single-family forward mortgage program.",
                                 html.Details(
                                     [
                                         html.Summary(
@@ -651,15 +655,8 @@ app.layout = html.Div(
                                     ],
                                     style={"display": "inline"},
                                 ),
-                                " mortgage program."
                             ]
                         ),
-                        html.P(
-                            "The analysis and views shown here are those of the author and do not represent any current or former employer. "
-                            "The website is not affiliated with FHA or any government agency.",
-                            style={"display": "inline"}
-                        ),
-
                     ],
                 ),
                 # Dashboard sections

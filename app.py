@@ -189,11 +189,11 @@ def build_dashboard_sections() -> html.Div:
                 build_section_header(
                     "Originations",
                     [
-                        "In December 1934, Amos and Elise Herbert applied to refinance their home in the Del Ray neighborhood of Alexandria, Virginia. "
+                        "In December 1934, Amos and Elsie Herbert applied to refinance their home in the Del Ray neighborhood of Alexandria, Virginia. "
                         "Amos was a 45-year-old clerk making $137 per month for the Southern Railway Company, where he had worked for 28 years. "
                         "He was described as, 'a steady, industrious type and seems to be a good type of citizen. Anxious to keep his home, and interested in his family's welfare.' "
                         "But his pay had been cut 10 percent over the previous four years, and he was struggling to pay his property taxes and second mortgage. "
-                        "With the help of a new federal insurance program, Amos and Elise were able to get a $3,500 loan from Alexandria National Bank "
+                        "With the help of a new federal insurance program, Amos and Elsie were able to get a $3,500 loan from Alexandria National Bank "
                         "to be paid back at $25.07 per month for the next 19 1/2 years.",
                         html.Br(),
                         "This was the first home mortgage insured by the Federal Housing Administration. "
@@ -395,11 +395,6 @@ def build_dashboard_sections() -> html.Div:
                             ],
                             style={"display": "inline"},
                         ),
-                        "Two percent is substantially lower than the capital requirements for private mortgage insurers laid out "
-                        "by Fannie Mae and Freddie Mac's Private Mortgage Insurers Eligibility Requirements (PMIERS), "
-                        "which varies by portfolio risk but has a floor of 5.6 percent of risk-in-force.",
-                        html.Br(),
-                        "However, as noted, the profitability of FHA is not the justification for its existence.",
                         "The economic value of the MMI Fund has turned negative twice since 1990, meaning it was technically insolvent.",
                         "Yet the full faith and credit of the U.S. government means FHA insurance is still valued by investors.",
                         "That allows FHA to perform a counter-cyclical role, increasing lending while private insurers are retreating.",
@@ -649,14 +644,14 @@ app.layout = html.Div(
                                     [
                                         html.Summary(
                                             "*",
-                                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"}
+                                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px", "padding": "0"}
                                         ),
-                                        html.P(
+                                        html.Div(
                                             "Forward loans exclude FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties.",
                                             style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"}
                                         ),
                                     ],
-                                    style={"display": "inline"}
+                                    style={"display": "inline", "margin": "0", "padding": "0"}
                                 ),
                                 " mortgage program."
                             ]
@@ -711,8 +706,7 @@ app.layout = html.Div(
                                             }
                                         ),
                                         html.Figcaption(
-                                            "Dr. Park in front of the first existing house to be bought with an FHA-insured home loan. "
-                                            "The 1940 Census reports Amos and Elsie Herbert owned the house located at 319 East Howell Ave in Alexandria, VA.",
+                                            "Dr. Park in front of the house that secured the first FHA-insured home mortgage.",
                                             style={
                                                 "width": "180px",
                                                 "fontSize": "0.75rem",

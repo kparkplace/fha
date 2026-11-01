@@ -166,6 +166,49 @@ def build_chart_card(title: str, description: str, figure: go.Figure | None, *, 
     )
 
 
+def build_inline_footnote(footnote_id: str, content: str) -> html.Span:
+    """Build an inline footnote with marker and hidden content that toggles on click."""
+    return html.Span(
+        [
+            html.Span(
+                "*",
+                id=f"{footnote_id}-marker",
+                n_clicks=0,
+                style={
+                    "cursor": "pointer",
+                    "color": "#3b82f6",
+                    "fontWeight": "bold",
+                    "marginLeft": "2px",
+                    "marginRight": "2px",
+                    "textDecoration": "underline",
+                },
+            ),
+            html.Div(
+                content,
+                id=f"{footnote_id}-content",
+                style={
+                    "display": "none",
+                    "position": "absolute",
+                    "backgroundColor": "#f8fafc",
+                    "border": "1px solid #e2e8f0",
+                    "borderRadius": "6px",
+                    "padding": "12px",
+                    "marginTop": "4px",
+                    "maxWidth": "400px",
+                    "color": "#64748b",
+                    "fontSize": "0.85rem",
+                    "zIndex": "999",
+                    "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    "lineHeight": "1.5",
+                    "left": "-100px",
+                    "top": "20px",
+                },
+            ),
+        ],
+        style={"position": "relative", "display": "inline"}
+    )
+
+
 def build_dashboard_sections() -> html.Div:
     """Build all dashboard sections organized by module."""
     capratio_df = DATA_CACHE["capratio_df"]
@@ -564,7 +607,6 @@ app.layout = html.Div(
                             html.Div(
                                 [
                                     html.H1("FHA History", style={"marginBottom": "4px", "display": "inline"}),
-                                    html.Span("*", style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "marginLeft": "4px"}),
                                 ],
                                 style={"display": "flex", "alignItems": "baseline"}
                             ),
@@ -613,22 +655,13 @@ app.layout = html.Div(
                                 "The Federal Housing Administration (FHA) was created by the National Housing Act of 1934. "
                                 "Title II of the Act creates 'a system of mutual mortgage insurance' in which borrowers pay "
                                 "insurance premiums into a fund to compensate lenders in case of default.",
-                                html.Details(
-                                    [
-                                        html.Summary(
-                                            "*",
-                                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"}
-                                        ),
-                                        html.P(
-                                            "A 'mutual' insurance company is one owned by its policyholders and where surplus profits are redistributed back to customers. "
-                                            "FHA paid such dividends between 1943 and 1991 to borrowers who paid off their loans "
-                                            "but payments were suspended due to the financial condition of the Fund. However, FHA is still authorized "
-                                            "to pay distributive shares 'in such manner and amount' determined 'to be equitable and in accordance "
-                                            "with sound actuarial and accounting practice.'",
-                                            style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"}
-                                        ),
-                                    ],
-                                    style={"display": "inline"}
+                                build_inline_footnote(
+                                    "footnote-mutual",
+                                    "A 'mutual' insurance company is one owned by its policyholders and where surplus profits are redistributed back to customers. "
+                                    "FHA paid such dividends between 1943 and 1991 to borrowers who paid off their loans "
+                                    "but payments were suspended due to the financial condition of the Fund. However, FHA is still authorized "
+                                    "to pay distributive shares 'in such manner and amount' determined 'to be equitable and in accordance "
+                                    "with sound actuarial and accounting practice.'"
                                 ),
                                 " The role of the federal "
                                 "government was not to displace the private market, but 'to establish the conditions under "
@@ -640,18 +673,9 @@ app.layout = html.Div(
                         html.P(
                             [
                                 "This website provides an historical overview of FHA's single-family forward",
-                                html.Details(
-                                    [
-                                        html.Summary(
-                                            "*",
-                                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px", "padding": "0"}
-                                        ),
-                                        html.Div(
-                                            "Forward loans exclude FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties.",
-                                            style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"}
-                                        ),
-                                    ],
-                                    style={"display": "inline", "margin": "0", "padding": "0"}
+                                build_inline_footnote(
+                                    "footnote-forward",
+                                    "Forward loans exclude FHA's Home Equity Conversion Mortgage (HECM), or reverse mortgage, program in which senior homeowners extract equity from their properties."
                                 ),
                                 " mortgage program."
                             ]
@@ -790,6 +814,8 @@ app.layout = html.Div(
                     style={"marginBottom": "24px"},
                 ),
                 dcc.Interval(id="initial-load", interval=300, n_intervals=0, max_intervals=1),
+                dcc.Store(id="footnote-mutual-open", data=False),
+                dcc.Store(id="footnote-forward-open", data=False),
             ],
             style={
                 "maxWidth": "1440px",
@@ -865,6 +891,62 @@ def load_and_render(_n_intervals: int):
         render_stats_items(),
         sections,
     )
+
+
+@app.callback(
+    Output("footnote-mutual-open", "data"),
+    Output("footnote-mutual-content", "style"),
+    Input("footnote-mutual-marker", "n_clicks"),
+    prevent_initial_call=True,
+)
+def toggle_footnote_mutual(n_clicks):
+    is_open = (n_clicks or 0) % 2 == 1
+    style = {
+        "display": "block" if is_open else "none",
+        "position": "absolute",
+        "backgroundColor": "#f8fafc",
+        "border": "1px solid #e2e8f0",
+        "borderRadius": "6px",
+        "padding": "12px",
+        "marginTop": "4px",
+        "maxWidth": "400px",
+        "color": "#64748b",
+        "fontSize": "0.85rem",
+        "zIndex": "999",
+        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+        "lineHeight": "1.5",
+        "left": "-100px",
+        "top": "20px",
+    }
+    return is_open, style
+
+
+@app.callback(
+    Output("footnote-forward-open", "data"),
+    Output("footnote-forward-content", "style"),
+    Input("footnote-forward-marker", "n_clicks"),
+    prevent_initial_call=True,
+)
+def toggle_footnote_forward(n_clicks):
+    is_open = (n_clicks or 0) % 2 == 1
+    style = {
+        "display": "block" if is_open else "none",
+        "position": "absolute",
+        "backgroundColor": "#f8fafc",
+        "border": "1px solid #e2e8f0",
+        "borderRadius": "6px",
+        "padding": "12px",
+        "marginTop": "4px",
+        "maxWidth": "400px",
+        "color": "#64748b",
+        "fontSize": "0.85rem",
+        "zIndex": "999",
+        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+        "lineHeight": "1.5",
+        "left": "-100px",
+        "top": "20px",
+    }
+    return is_open, style
 
 
 if __name__ == "__main__":

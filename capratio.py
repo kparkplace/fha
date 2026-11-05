@@ -163,6 +163,12 @@ def build_adjusted_figure(
     if plot_df.empty:
         return None
 
+    # Define source order
+    source_order = ["Szymanoski et al. (2012)", "Actural Reviews", "Annual Reports", "Unamortized IIF", "Amortized IIF"]
+    source_category = pd.Categorical(plot_df["source"], categories=source_order, ordered=True)
+    plot_df = plot_df.copy()
+    plot_df["source"] = source_category
+
     fig = px.line(
         plot_df.sort_values(["source", "year"]),
         x="year",
@@ -170,6 +176,11 @@ def build_adjusted_figure(
         color="source",
     )
     fig.update_traces(hovertemplate="Year=%{x}<br>Value=%{y:,.0f}<extra></extra>")
+    fig.for_each_annotation(lambda a: a.update(text=a.text.replace("source=", "")) if "source=" in a.text else ())
+    
+    # Remove legend title
+    fig.update_layout(legend_title_text="")
+    
     return _apply_figure_layout(
         fig,
         y_axis_title=y_axis_title,

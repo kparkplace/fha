@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from dash import Dash, Input, Output, dcc, html
+import plotly.graph_objects as go
 
 from capratio import (
     build_adjusted_figure,
@@ -252,9 +253,35 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Loan Limits",
-                    "The National Housing Act of 1934 limited the maximum mortgage balance eligible for FHA insurance to $16,000. "
+                    "The National Housing Act of 1934 limited the maximum balance eligible for FHA mortgage insurance to $16,000. "
                     "This was generous given the median owner-occupied home in the 1930 Census was only $4,778 and over 90 percent of homes were valued under $15,000. "
-                    "Amendments to the Act in 1938 lowered the loan limit and Congress periodically adjusted limits thereafter.",
+                    "Amendments to the Act in 1938 lowered the loan limit and Congress periodically adjusted limits thereafter. "
+                    "In 1994, Congress adopted a formula that set the loan limit at 95 percent of the area median house price, "
+                    "but could not be less than 38 percent of the conforming loan limit used by Fannie Mae and Freddie Mac ('Standard') nor exceed 75 percent of that limit ('High Cost'). "
+                    "These bounds were increased to 48 percent and 87 percent, respectively in 1998. "
+                    "Then during the Great Financial Crisis, FHA's loan limits were dramatically increased. "
+                    "The Economic Stimulus Act of 2008 temporarily increased FHA loan limits to 125 percent of area median prices, "
+                    "between a floor of 65 percent and ceiling of 175 percent of the conforming loan limit. "
+                    "These limits were extended several times but ultimately expired in 2013. "
+                    "The current formula is 115 percent of the area median house price, "
+                    "between a floor of 65 percent and ceiling of 150 percent.",
+                ),
+                html.Details(
+                    [
+                        html.Summary(
+                            "Note on area median prices",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "0.95rem", "marginBottom": "8px"},
+                        ),
+                        html.P(
+                            "Area median prices are set by metropolitan statistical areas (MSAs) as defined by the Office of Management and Budget. "
+                            "But are defined as the median single-family house price 'of the county within the area that has the highest such median price.' "
+                            "This means they can be highly sensitive to changes in delineation of MSAs. "
+                            "For example, when OMB removed high cost Summit County, UT from the Salt Lake City MSA in 2014, "
+                            "the decline in 'area median price' resulted in a 59 percent reduction in FHA loan limits.",
+                            style={"color": "#64748b", "fontSize": "0.9rem", "marginTop": "8px", "marginBottom": "0", "lineHeight": "1.6"},
+                        ),
+                    ],
+                    style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f8fafc", "borderRadius": "8px", "border": "1px solid #e2e8f0"},
                 ),
                 build_chart_card(
                     "Single-Family Loan Limits (1930-2025)",
@@ -566,7 +593,7 @@ def render_stats_items() -> list[html.Li]:
     claims_rows = len(DATA_CACHE["claims_df"]) if DATA_CACHE["claims_df"] is not None else 0
     creditrisk_rows = len(DATA_CACHE["creditrisk_df"]) if DATA_CACHE["creditrisk_df"] is not None else 0
     creditsubsidy_rows = len(DATA_CACHE["creditsubsidy_df"]) if DATA_CACHE["creditsubsidy_df"] is not None else 0
-    chart_count = 9 if DATA_CACHE["creditsubsidy_df"] is not None else 8
+    chart_count = 10 if DATA_CACHE["creditsubsidy_df"] is not None else 9
     return [
         html.Li(f"Endorsements rows: {endorsements_rows:,}"),
         html.Li(f"Capratio rows: {capratio_rows:,}"),
@@ -659,6 +686,7 @@ app.layout = html.Div(
             html.Div(
                 [
                     html.A("Originations", href="#section-originations", className="nav-link"),
+                    html.A("Loan Limits", href="#section-loanlimits", className="nav-link"),
                     html.A("Credit Risk", href="#section-credit-risk", className="nav-link"),
                     html.A("Claim Rates", href="#section-claim-rates", className="nav-link"),
                     html.A("Credit Subsidy", href="#section-credit-subsidy", className="nav-link"),

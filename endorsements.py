@@ -60,7 +60,7 @@ def build_endorsements_figure(endorsements_df: pd.DataFrame | None) -> tuple[go.
                 y=df_source["count"],
                 mode="lines",
                 name=source,
-                line={"color": color_map[source], "width": 2},
+                line={"color": color_map.get(source, "#6b7280"), "width": 2},
                 hovertemplate="Year=%{x}<br>Count=%{y:,}<br>Source=%{fullData.name}<extra></extra>",
             )
         )

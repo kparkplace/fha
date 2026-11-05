@@ -10,7 +10,7 @@ Sources:
 
 Output:
 - loanlimits_county.parquet: Full county-level CHUMS data (2008-2025)
-- loanlimits.parquet: Combined dataset with all sources, years 1890-2025, schema:
+- loanlimits.parquet: Combined dataset with all sources, years 1930-2025, schema:
   year (int), type (str: S/H), value (float), source (str)
 """
 
@@ -278,5 +278,4 @@ def combine_all_sources():
 
 if __name__ == "__main__":
     df = combine_all_sources()
-
 

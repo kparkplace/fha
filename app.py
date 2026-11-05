@@ -269,8 +269,8 @@ def build_dashboard_sections() -> html.Div:
                 html.Details(
                     [
                         html.Summary(
-                            "Note on area median prices",
-                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "0.95rem", "marginBottom": "8px"},
+                            "*",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"},
                         ),
                         html.P(
                             "Area median prices are set by metropolitan statistical areas (MSAs) as defined by the Office of Management and Budget. "
@@ -278,14 +278,14 @@ def build_dashboard_sections() -> html.Div:
                             "This means they can be highly sensitive to changes in delineation of MSAs. "
                             "For example, when OMB removed high cost Summit County, UT from the Salt Lake City MSA in 2014, "
                             "the decline in 'area median price' resulted in a 59 percent reduction in FHA loan limits.",
-                            style={"color": "#64748b", "fontSize": "0.9rem", "marginTop": "8px", "marginBottom": "0", "lineHeight": "1.6"},
+                            style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"},
                         ),
                     ],
-                    style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f8fafc", "borderRadius": "8px", "border": "1px solid #e2e8f0"},
+                    style={"display": "inline"},
                 ),
                 build_chart_card(
-                    "Single-Family Loan Limits (1930-2025)",
-                    "Maximum loan limits for single-family homes, shown by limit type (Standard vs. High Cost) and data source.",
+                    "Single-Family Loan Limits",
+                    "Maximum loan obligation for a single-family property",
                     loanlimits_fig,
                 ),
                 build_data_sources([
@@ -665,9 +665,13 @@ app.layout = html.Div(
                                 style={"display": "flex", "alignItems": "center"}
                             ),
                             html.P(
-                            "This website is not affiliated with FHA or any government agency. The views and analyses shown here are those of the author and do not represent any current or former employer. ",
-                            style={"display": "inline"}
-                        )
+                                [
+                                    "This website is not affiliated with FHA or any government agency. ",
+                                    html.Br(),
+                                    "The views and analyses shown here are those of the author and do not represent any current or former employer. ",
+                                ],
+                                style={"color": "#64748b", "fontSize": "0.9rem", "display": "inline"}
+                            )
                         ],
                     ),
                 ],

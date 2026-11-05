@@ -42,20 +42,22 @@ def build_loanlimits_figure(loanlimits_df: pd.DataFrame | None) -> go.Figure | N
         'H': 'High Cost Limit'
     }
     
-    # Assign colors to sources
-    sources = sorted(loanlimits_df['source'].unique())
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
-    color_map = {src: colors[i % len(colors)] for i, src in enumerate(sources)}
+    # Define source order and colors
+    source_order = ['Vandell (1995)', 'FHA Mortgagee Letters', 'CHUMS', 'HPI-adjusted 1938 limit', 'Standard Limit', 'High Cost Limit']
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    color_map = {src: colors[i % len(colors)] for i, src in enumerate(source_order)}
     
     # Make HPI-adjusted line light gray
-    if 'HPI-adjusted 1938 limit' in color_map:
-        color_map['HPI-adjusted 1938 limit'] = '#d3d3d3'
+    color_map['HPI-adjusted 1938 limit'] = '#d3d3d3'
     
     fig = go.Figure()
     seen_pairs: set[tuple[str, str]] = set()
     
-    # Add traces for each source-type combination
-    for source in sources:
+    # Add traces in source order
+    for source in source_order:
+        if source not in loanlimits_df['source'].unique():
+            continue
+            
         for loan_type in ['S', 'H']:
             mask = (loanlimits_df['source'] == source) & (loanlimits_df['type'] == loan_type)
             rows = loanlimits_df.loc[mask].sort_values('year')
@@ -103,14 +105,13 @@ def build_loanlimits_figure(loanlimits_df: pd.DataFrame | None) -> go.Figure | N
     
     # Apply consistent styling
     fig.update_layout(
-        title={'text': 'FHA Single-Family Loan Limits (1930-2025)', 'x': 0.03},
         height=500,
         template='plotly_white',
-        margin={'l': 50, 'r': 20, 't': 60, 'b': 50},
+        margin={'l': 50, 'r': 20, 't': 40, 'b': 80},
         legend={
-            'orientation': 'v',
+            'orientation': 'h',
             'yanchor': 'top',
-            'y': 0.99,
+            'y': -0.15,
             'xanchor': 'left',
             'x': 0.01,
         },

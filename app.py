@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from dash import Dash, Input, Output, dcc, html
+import plotly.graph_objects as go
 
 from capratio import (
     build_adjusted_figure,
@@ -17,6 +18,7 @@ from claimsrate import build_claims_line_figure, build_claims_stack_figure, load
 from creditrisk import build_creditrisk_figure, load_creditrisk_data
 from creditsubsidy import build_creditsubsidy_figure, load_credit_subsidy_data
 from endorsements import build_endorsements_figure, load_endorsements_data
+from loanlimits import build_loanlimits_figure, load_loanlimits_data
 
 
 REPO_ROOT = Path(__file__).resolve().parent
@@ -24,6 +26,7 @@ CAPRATIO_PATH = REPO_ROOT / "Data" / "capratio.parquet"
 CLAIMS_PATH = REPO_ROOT / "Data" / "cum_claims.parquet"
 CREDITRISK_PATH = REPO_ROOT / "Data" / "creditrisk.parquet"
 ENDORSEMENTS_PATH = REPO_ROOT / "Data" / "endorsements.parquet"
+LOANLIMITS_PATH = REPO_ROOT / "Data" / "loanlimits.parquet"
 
 
 DATA_CACHE = {
@@ -32,6 +35,7 @@ DATA_CACHE = {
     "creditrisk_df": None,
     "creditsubsidy_df": None,
     "endorsements_df": None,
+    "loanlimits_df": None,
     "loaded_at": None,
     "load_error": None,
     "creditsubsidy_error": None,
@@ -47,6 +51,7 @@ def ensure_data_loaded() -> None:
         and DATA_CACHE["claims_df"] is not None
         and DATA_CACHE["creditrisk_df"] is not None
         and DATA_CACHE["endorsements_df"] is not None
+        and DATA_CACHE["loanlimits_df"] is not None
         and (DATA_CACHE["creditsubsidy_df"] is not None or DATA_CACHE["creditsubsidy_error"] is not None)
     ):
         return
@@ -67,15 +72,21 @@ def ensure_data_loaded() -> None:
         DATA_CACHE["load_error"] = f"Missing parquet input: {ENDORSEMENTS_PATH}"
         return
 
+    if not LOANLIMITS_PATH.exists():
+        DATA_CACHE["load_error"] = f"Missing parquet input: {LOANLIMITS_PATH}"
+        return
+
     capratio_df = load_capratio_data(CAPRATIO_PATH)
     claims_df = load_claims_data(CLAIMS_PATH)
     creditrisk_df = load_creditrisk_data(CREDITRISK_PATH)
     endorsements_df = load_endorsements_data(ENDORSEMENTS_PATH)
+    loanlimits_df = load_loanlimits_data(LOANLIMITS_PATH)
 
     DATA_CACHE["capratio_df"] = capratio_df
     DATA_CACHE["claims_df"] = claims_df
     DATA_CACHE["creditrisk_df"] = creditrisk_df
     DATA_CACHE["endorsements_df"] = endorsements_df
+    DATA_CACHE["loanlimits_df"] = loanlimits_df
     DATA_CACHE["loaded_at"] = datetime.now(timezone.utc)
 
     if DATA_CACHE["creditsubsidy_df"] is None and DATA_CACHE["creditsubsidy_error"] is None:
@@ -172,8 +183,9 @@ def build_dashboard_sections() -> html.Div:
     claims_df = DATA_CACHE["claims_df"]
     creditrisk_df = DATA_CACHE["creditrisk_df"]
     endorsements_df = DATA_CACHE["endorsements_df"]
+    loanlimits_df = DATA_CACHE["loanlimits_df"]
     creditsubsidy_df = DATA_CACHE["creditsubsidy_df"]
-    if capratio_df is None or claims_df is None or creditrisk_df is None or endorsements_df is None:
+    if capratio_df is None or claims_df is None or creditrisk_df is None or endorsements_df is None or loanlimits_df is None:
         return html.Div()
 
     adjusted_y_axis_title = get_adjusted_y_axis_title()
@@ -234,7 +246,85 @@ def build_dashboard_sections() -> html.Div:
         )
     )
 
-    # 2) Mortgage Default Risk Section
+    # 2) Loan Limits Section
+    loanlimits_fig = build_loanlimits_figure(loanlimits_df)
+    sections.append(
+        html.Div(
+            [
+                build_section_header(
+                    "Loan Limits",
+                    "The National Housing Act of 1934 limited the maximum balance eligible for FHA mortgage insurance to $16,000. "
+                    "This was generous given the median owner-occupied home in the 1930 Census was only $4,778 and over 90 percent of homes were valued under $15,000. "
+                    "Amendments to the Act in 1938 lowered the loan limit and Congress periodically adjusted limits thereafter. "
+                    "In 1994, Congress adopted a formula that set the loan limit at 95 percent of the area median house price, "
+                    "but could not be less than 38 percent of the conforming loan limit used by Fannie Mae and Freddie Mac ('Standard') nor exceed 75 percent of that limit ('High Cost'). "
+                    "These bounds were increased to 48 percent and 87 percent, respectively in 1998. "
+                    "Then during the Great Financial Crisis, FHA's loan limits were dramatically increased. "
+                    "The Economic Stimulus Act of 2008 temporarily increased FHA loan limits to 125 percent of area median prices, "
+                    "between a floor of 65 percent and ceiling of 175 percent of the conforming loan limit. "
+                    "These limits were extended several times but ultimately expired in 2013. "
+                    "The current formula is 115 percent of the area median house price, "
+                    "between a floor of 65 percent and ceiling of 150 percent.",
+                ),
+                html.Details(
+                    [
+                        html.Summary(
+                            "Note on area median prices",
+                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "500", "fontSize": "0.95rem", "marginBottom": "8px"},
+                        ),
+                        html.P(
+                            "Area median prices are set by metropolitan statistical areas (MSAs) as defined by the Office of Management and Budget. "
+                            "But are defined as the median single-family house price 'of the county within the area that has the highest such median price.' "
+                            "This means they can be highly sensitive to changes in delineation of MSAs. "
+                            "For example, when OMB removed high cost Summit County, UT from the Salt Lake City MSA in 2014, "
+                            "the decline in 'area median price' resulted in a 59 percent reduction in FHA loan limits.",
+                            style={"color": "#64748b", "fontSize": "0.9rem", "marginTop": "8px", "marginBottom": "0", "lineHeight": "1.6"},
+                        ),
+                    ],
+                    style={"marginTop": "12px", "padding": "12px", "backgroundColor": "#f8fafc", "borderRadius": "8px", "border": "1px solid #e2e8f0"},
+                ),
+                build_chart_card(
+                    "Single-Family Loan Limits (1930-2025)",
+                    "Maximum loan limits for single-family homes, shown by limit type (Standard vs. High Cost) and data source.",
+                    loanlimits_fig,
+                ),
+                build_data_sources([
+                    [
+                        "Kerry Vandell. 'FHA Restructuring Proposals: Alternatives and Implications.' Housing Policy Debate, Vol. 6, No. 2, 1995. Available at ",
+                        html.A("https://fcic-static.law.stanford.edu/cdn_media/fcic-docs/1995-00-00%20Vandell%20FHFA%20Restructuring%20Proposals.pdf",
+                               href="https://fcic-static.law.stanford.edu/cdn_media/fcic-docs/1995-00-00%20Vandell%20FHFA%20Restructuring%20Proposals.pdf",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "FHA Mortgagee Letters. Available at ",
+                        html.A("https://www.hud.gov/hudclips/letters/mortgagee",
+                               href="https://www.hud.gov/hudclips/letters/mortgagee",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "Computerized Home Underwriting Management System, US Department of Housing and Urban Development. Available at ",
+                        html.A("https://entp.hud.gov/idapp/html/hicostlook.cfm",
+                               href="https://entp.hud.gov/idapp/html/hicostlook.cfm",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ],
+                    [
+                        "Historical Housing Prices Project, Federal Reserve Bank of Philadelphia. Available at ",
+                        html.A("https://www.philadelphiafed.org/surveys-and-data/regional-economic-analysis/historical-housing-prices",
+                               href="https://www.philadelphiafed.org/surveys-and-data/regional-economic-analysis/historical-housing-prices",
+                               target="_blank", rel="noopener noreferrer", style={"color": "#3b82f6", "textDecoration": "underline"}),
+                        "."
+                    ]
+                ]),
+            ],
+            id="section-loanlimits",
+            style={"marginBottom": "24px"},
+        )
+    )
+
+    # 3) Mortgage Default Risk Section
     sections.append(
         html.Div(
             [
@@ -284,7 +374,7 @@ def build_dashboard_sections() -> html.Div:
         )
     )
 
-    # 3) Cumulative Claim Rates Section
+    # 4) Cumulative Claim Rates Section
     sections.append(
         html.Div(
             [
@@ -329,7 +419,7 @@ def build_dashboard_sections() -> html.Div:
         )
     )
 
-    # 4) Credit Subsidy Rates Section
+    # 5) Credit Subsidy Rates Section
     if creditsubsidy_df is not None:
         creditsubsidy_fig, creditsubsidy_subtitle = build_creditsubsidy_figure(creditsubsidy_df)
         sections.append(
@@ -371,7 +461,7 @@ def build_dashboard_sections() -> html.Div:
             )
         )
 
-    # 5) MMI Fund Capital Section
+    # 6) MMI Fund Capital Section
     sections.append(
         html.Div(
             [
@@ -503,7 +593,7 @@ def render_stats_items() -> list[html.Li]:
     claims_rows = len(DATA_CACHE["claims_df"]) if DATA_CACHE["claims_df"] is not None else 0
     creditrisk_rows = len(DATA_CACHE["creditrisk_df"]) if DATA_CACHE["creditrisk_df"] is not None else 0
     creditsubsidy_rows = len(DATA_CACHE["creditsubsidy_df"]) if DATA_CACHE["creditsubsidy_df"] is not None else 0
-    chart_count = 9 if DATA_CACHE["creditsubsidy_df"] is not None else 8
+    chart_count = 10 if DATA_CACHE["creditsubsidy_df"] is not None else 9
     return [
         html.Li(f"Endorsements rows: {endorsements_rows:,}"),
         html.Li(f"Capratio rows: {capratio_rows:,}"),
@@ -596,6 +686,7 @@ app.layout = html.Div(
             html.Div(
                 [
                     html.A("Originations", href="#section-originations", className="nav-link"),
+                    html.A("Loan Limits", href="#section-loanlimits", className="nav-link"),
                     html.A("Credit Risk", href="#section-credit-risk", className="nav-link"),
                     html.A("Claim Rates", href="#section-claim-rates", className="nav-link"),
                     html.A("Credit Subsidy", href="#section-credit-subsidy", className="nav-link"),

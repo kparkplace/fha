@@ -202,11 +202,10 @@ def build_dashboard_sections() -> html.Div:
                     "Originations",
                     [
                         "In December 1934, Amos and Elsie Herbert applied to refinance their home in the Del Ray neighborhood of Alexandria, Virginia. "
-                        "Amos was a 45-year-old clerk making $137 per month for the Southern Railway Company, where he had worked for 28 years. "
+                        "Amos was a 45-year-old clerk for the Southern Railway Company, where he had worked for 28 years. "
                         "He was described as, 'a steady, industrious type and seems to be a good type of citizen. Anxious to keep his home, and interested in his family's welfare.' "
                         "But his pay had been cut 10 percent over the previous four years, and he was struggling to pay his property taxes and second mortgage. "
-                        "With the help of a new federal insurance program, Amos and Elsie were able to get a $3,500 loan from Alexandria National Bank "
-                        "to be paid back at $25.07 per month for the next 19 1/2 years.",
+                        "With the help of a new federal insurance program, Amos and Elsie were able to get a $3,500 loan from Alexandria National Bank.",
                         html.Br(),
                         "This was the first home mortgage insured by the Federal Housing Administration. "
                         "Since then, FHA has helped over 55 million American households, many struggling financially like the Herberts, to achieve and sustain the American Dream.",
@@ -253,36 +252,38 @@ def build_dashboard_sections() -> html.Div:
             [
                 build_section_header(
                     "Loan Limits",
-                    "The National Housing Act of 1934 limited the maximum balance eligible for FHA mortgage insurance to $16,000. "
-                    "This was generous given the median owner-occupied home in the 1930 Census was only $4,778 and over 90 percent of homes were valued under $15,000. "
-                    "Amendments to the Act in 1938 lowered the loan limit and Congress periodically adjusted limits thereafter. "
-                    "In 1994, Congress adopted a formula that set the loan limit at 95 percent of the area median house price, "
-                    "but could not be less than 38 percent of the conforming loan limit used by Fannie Mae and Freddie Mac ('Standard') nor exceed 75 percent of that limit ('High Cost'). "
-                    "These bounds were increased to 48 percent and 87 percent, respectively in 1998. "
-                    "Then during the Great Financial Crisis, FHA's loan limits were dramatically increased. "
-                    "The Economic Stimulus Act of 2008 temporarily increased FHA loan limits to 125 percent of area median prices, "
-                    "between a floor of 65 percent and ceiling of 175 percent of the conforming loan limit. "
-                    "These limits were extended several times but ultimately expired in 2013. "
-                    "The current formula is 115 percent of the area median house price, "
-                    "between a floor of 65 percent and ceiling of 150 percent.",
-                ),
-                html.Details(
                     [
-                        html.Summary(
-                            "*",
-                            style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"},
+                        "The National Housing Act of 1934 limited the maximum balance eligible for FHA mortgage insurance to $16,000. "
+                        "This was generous given the median owner-occupied home in the 1930 Census was only $4,778 and over 90 percent of homes were valued under $15,000. "
+                        "Loan limits were lowered in 1938 and Congress periodically adjusted limits thereafter, roughly keeping pace with house prices until the 1980s. "
+                        "Congress adopted a formula in 1994 in which the limit was set at 95 percent of the local area median house price, "
+                        "but could not be less than 38 percent of the conforming loan limit used by Fannie Mae and Freddie Mac ('Standard Limit') nor exceed 75 percent of that limit ('High Cost'). "
+                        "These bounds were increased to 48 percent and 87 percent, respectively in 1998. ",
+                        html.Details(
+                            [
+                                html.Summary(
+                                    "*",
+                                    style={"cursor": "pointer", "color": "#3b82f6", "fontWeight": "bold", "display": "inline", "marginLeft": "2px", "marginRight": "2px"},
+                                ),
+                                html.P(
+                                    "Area median prices are set by metropolitan statistical areas (MSAs) as defined by the Office of Management and Budget. "
+                                    "But are defined as the median single-family house price 'of the county within the area that has the highest such median price.' "
+                                    "This means they can be highly sensitive to changes in delineation of MSAs. "
+                                    "For example, when OMB removed high cost Summit County, UT from the Salt Lake City MSA in 2014, "
+                                    "the decline in 'area median price' resulted in a 59 percent reduction in FHA loan limits.",
+                                    style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"},
+                                ),
+                            ],
+                            style={"display": "inline"},
                         ),
-                        html.P(
-                            "Area median prices are set by metropolitan statistical areas (MSAs) as defined by the Office of Management and Budget. "
-                            "But are defined as the median single-family house price 'of the county within the area that has the highest such median price.' "
-                            "This means they can be highly sensitive to changes in delineation of MSAs. "
-                            "For example, when OMB removed high cost Summit County, UT from the Salt Lake City MSA in 2014, "
-                            "the decline in 'area median price' resulted in a 59 percent reduction in FHA loan limits.",
-                            style={"color": "#64748b", "fontSize": "0.85rem", "marginTop": "8px", "marginBottom": "0"},
-                        ),
+                        " Then during the Great Financial Crisis, FHA's loan limits were dramatically increased. "
+                        "The Economic Stimulus Act of 2008 temporarily increased FHA loan limits to 125 percent of area median prices, "
+                        "between a floor of 65 percent and ceiling of 175 percent of the conforming loan limit. "
+                        "These limits were extended several times but ultimately expired in 2013. "
+                        "The current formula is 115 percent of the area median house price, with a ceiling of 150 percent.",
                     ],
-                    style={"display": "inline"},
                 ),
+                
                 build_chart_card(
                     "Single-Family Loan Limits",
                     "Maximum loan obligation for a single-family property",
@@ -612,7 +613,7 @@ def render_stats_items() -> list[html.Li]:
 
 app = Dash(__name__)
 server = app.server
-app.title = "FHA"
+app.title = "FHA History"
 
 # Add Font Awesome for social icons
 app.index_string = '''
